@@ -7,5 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="jsch-0.1.55" level="project" />
+    <orderEntry type="library" exported="" name="postgresql-42.2.24" level="project" />
   </component>
 </module>
