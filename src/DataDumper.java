@@ -1,3 +1,6 @@
+import java.lang.Object.*;
+import java.util.Scanner;
+
 /*
 Name: DataDumper
 Authors:
@@ -9,8 +12,11 @@ public class DataDumper
 {
     static void MovieTransfer()
     {
+        Scanner fileSc = new Scanner("C:/DB_App/rotten_tomatoes_top_movies.csv");
         for(int i =0; i<500; i++)
         {
+            String line = fileSc.nextLine();
+            String[] tokens = line.split(",");
         }
     }
 }
