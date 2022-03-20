@@ -27,6 +27,8 @@ public class DataDumper
     static private String MPAA;
     static private String duration;
     static private int a;
+    static private int ActID;
+    static private int MovieGenreID;
     static private final String quotes = "\"";
 
     static private String[] Group(int i, String[] stuff)
@@ -47,6 +49,8 @@ public class DataDumper
 
     public static void MovieTransfer(Connection conn)
     {
+        ActID=0;
+        MovieGenreID = 0;
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader("C:/DB_App/rotten_tomatoes_top_movies.csv"));
@@ -130,10 +134,29 @@ public class DataDumper
                 }
                 String v = MovieID + ", " + Studios[0] + ", " + "0.0" + ", "
                         + "0" + ", " + Genres[0] + ", " + MovieName + ", "
-                        + MPAA + ", " + ReleaseDate[0] + ", " + duration;
-                String insertQuery = "insert into movie (*) VALUES ("+ v + " )";
+                        + MPAA + ", " + ReleaseDate[0] + ", " + duration
+                        + ", " + Directors[0];
+                String insertQuery = "insert into movie (*) VALUES ("+ v + ")";
                 Statement insertStatement = conn.createStatement();
                 insertStatement.executeUpdate(insertQuery);
+                for(String actor : Actors)
+                {
+                    insertQuery = "insert into actinmovie (*) VALUES " +
+                            "(" + ActID + ", " + actor + ", " + MovieID+ ")";
+                    Statement actInMovie = conn.createStatement();
+                    actInMovie.executeUpdate(insertQuery);
+                    ActID++;
+                }
+                Statement DirectorsInsert = conn.createStatement();
+                DirectorsInsert.executeUpdate("insert into director (NAME)" +
+                        " VALUE ("+ Directors[0] + ")");
+                for(String genre: Genres)
+                {
+                    insertQuery = "insert into moviegenre (*) VALUES"
+                            + " (" + MovieGenreID + ", " + genre + ", "
+                            + MovieID + ")";
+                }
+
             }
         }catch (Exception ignored){};
 
