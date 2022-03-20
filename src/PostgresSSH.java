@@ -52,7 +52,7 @@ public class PostgresSSH {
             // Trying to transfer data
             DataDumper.MovieTransfer(conn);
             System.out.println("Data transferred to DB");
-
+            App.UserStart(conn);
 
         } catch (Exception e) {
             e.printStackTrace();
