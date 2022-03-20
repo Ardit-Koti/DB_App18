@@ -139,23 +139,20 @@ abstract class DataDumper
                         + 0 + ", " + Genres[0] + ", " + MovieName + ", "
                         + MPAA + ", " + ReleaseDate[0] + ", " + duration
                         + ", " + Directors[0];
-                String insertQuery = "insert into movie VALUES ("+ v + ")";
+                String insertQuery = "insert into p320_26.movie VALUES ("+ v + ")";
                 Statement insertStatement = conn.createStatement();
                 insertStatement.executeUpdate(insertQuery);
                 for(String actor : Actors)
                 {
-                    insertQuery = "insert into actinmovie VALUES " +
+                    insertQuery = "insert into p320_26.actinmovie VALUES " +
                             "(" + ActID + ", " + actor + ", " + MovieID+ ")";
                     Statement actInMovie = conn.createStatement();
                     actInMovie.executeUpdate(insertQuery);
                     ActID++;
                 }
-                Statement DirectorsInsert = conn.createStatement();
-                DirectorsInsert.executeUpdate("insert into director (NAME)" +
-                        " VALUE ("+ Directors[0] + ")");
                 for(String genre: Genres)
                 {
-                    insertQuery = "insert into moviegenre VALUES"
+                    insertQuery = "insert into p320_26.moviegenre VALUES"
                             + " (" + MovieGenreID + ", " + genre + ", "
                             + MovieID + ")";
                     Statement MGenreInsert = conn.createStatement();
