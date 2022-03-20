@@ -1,3 +1,4 @@
+import javax.swing.plaf.nimbus.State;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.lang.Object.*;
@@ -106,7 +107,31 @@ public class DataDumper
                     Actors = new String[1];
                     Actors[0] = tokens[a];
                 }
+                for(String string : Studios)
+                {
+                    string = string.replace(quotes, "");
+                }
+                for(String string : Genres)
+                {
+                    string = string.replace(quotes, "");
+                }
+                for(String string : Actors)
+                {
+                    string =string.replace(quotes, "");
+                }
+                for(String string : Directors)
+                {
+                    string = string.replace(quotes, "");
+                }
+                for(String string: ReleaseDate)
+                {
+                    string = string.replace(quotes, "");
+                }
+                String insertQuery = "insert into movie (*) VALUES () ";
+                Statement insertStatement = conn.createStatement();
+                int result = insertStatement.executeUpdate(insertQuery);
             }
         }catch (Exception ignored){};
+
     }
 }
