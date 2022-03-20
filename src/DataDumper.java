@@ -127,9 +127,10 @@ public class DataDumper
                 {
                     string = string.replace(quotes, "");
                 }
-                String insertQuery = "insert into movie (*) VALUES () ";
+                String values = "";
+                String insertQuery = "insert into movie (*) VALUES ("+ ")";
                 Statement insertStatement = conn.createStatement();
-                int result = insertStatement.executeUpdate(insertQuery);
+                insertStatement.executeUpdate(insertQuery);
             }
         }catch (Exception ignored){};
 
