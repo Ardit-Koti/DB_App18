@@ -5,6 +5,7 @@ import java.lang.Object.*;
 import java.nio.Buffer;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.Scanner;
 
 /*
@@ -127,8 +128,10 @@ public class DataDumper
                 {
                     string = string.replace(quotes, "");
                 }
-                String values = "";
-                String insertQuery = "insert into movie (*) VALUES ("+ ")";
+                String v = MovieID + ", " + Studios[0] + ", " + "0.0" + ", "
+                        + "0" + ", " + Genres[0] + ", " + MovieName + ", "
+                        + MPAA + ", " + ReleaseDate[0] + ", " + duration;
+                String insertQuery = "insert into movie (*) VALUES ("+ v + " )";
                 Statement insertStatement = conn.createStatement();
                 insertStatement.executeUpdate(insertQuery);
             }
