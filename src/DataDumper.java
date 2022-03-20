@@ -15,7 +15,7 @@ Description: Dumps data from comma seperated files into
              the database
  */
 
-public class DataDumper
+abstract class DataDumper
 {
     static private String[] Genres;
     static private String[] Studios;
@@ -36,18 +36,21 @@ public class DataDumper
         int beg = a;
         while(a < stuff.length)
         {
-            if(stuff[a].startsWith(quotes))
+            if(stuff[a].endsWith(quotes))
             {
                 break;
             }
             a++;
         }
         String[] list = new String[a-beg+1];
-        System.arraycopy(stuff, beg, list, a, list.length);
+        for(int j = beg; j<a+1; j++)
+        {
+            list[j-beg] = stuff[beg];
+        }
         return list;
     }
 
-    public static void MovieTransfer(Connection conn)
+    public static boolean MovieTransfer(Connection conn)
     {
         ActID=0;
         MovieGenreID = 0;
@@ -132,16 +135,16 @@ public class DataDumper
                 {
                     string = string.replace(quotes, "");
                 }
-                String v = MovieID + ", " + Studios[0] + ", " + "0.0" + ", "
-                        + "0" + ", " + Genres[0] + ", " + MovieName + ", "
+                String v = MovieID + ", " + Studios[0] + ", " + 0.0 + ", "
+                        + 0 + ", " + Genres[0] + ", " + MovieName + ", "
                         + MPAA + ", " + ReleaseDate[0] + ", " + duration
                         + ", " + Directors[0];
-                String insertQuery = "insert into movie (*) VALUES ("+ v + ")";
+                String insertQuery = "insert into movie VALUES ("+ v + ")";
                 Statement insertStatement = conn.createStatement();
                 insertStatement.executeUpdate(insertQuery);
                 for(String actor : Actors)
                 {
-                    insertQuery = "insert into actinmovie (*) VALUES " +
+                    insertQuery = "insert into actinmovie VALUES " +
                             "(" + ActID + ", " + actor + ", " + MovieID+ ")";
                     Statement actInMovie = conn.createStatement();
                     actInMovie.executeUpdate(insertQuery);
@@ -152,13 +155,17 @@ public class DataDumper
                         " VALUE ("+ Directors[0] + ")");
                 for(String genre: Genres)
                 {
-                    insertQuery = "insert into moviegenre (*) VALUES"
+                    insertQuery = "insert into moviegenre VALUES"
                             + " (" + MovieGenreID + ", " + genre + ", "
                             + MovieID + ")";
+                    Statement MGenreInsert = conn.createStatement();
+                    MGenreInsert.executeUpdate(insertQuery);
                 }
 
             }
-        }catch (Exception ignored){};
-
+        }catch (Exception e){
+            System.out.println(e);
+        };
+        return true;
     }
 }

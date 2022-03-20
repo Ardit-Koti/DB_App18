@@ -1,5 +1,6 @@
 import com.jcraft.jsch.*;
 
+import javax.xml.crypto.Data;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.sql.Connection;
@@ -48,6 +49,8 @@ public class PostgresSSH {
             System.out.println("Database connection established");
 
             // Do something with the database....
+            DataDumper.MovieTransfer(conn);
+            System.out.println("Data transferred to DB");
 
         } catch (Exception e) {
             e.printStackTrace();
