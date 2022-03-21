@@ -2,7 +2,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Scanner;
-
+/*
+This class deals with the user experience and commands.
+ */
 public abstract class App
 {
     private static final String login = "login";
