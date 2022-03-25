@@ -9,6 +9,7 @@ public abstract class App
 {
     private static final String login = "login";
     private static final String register = "register";
+    private static final String quit = "quit";
     private static String email;
     private static String User;
     private static String Password;
@@ -57,7 +58,7 @@ public abstract class App
     {
 
         System.out.println("Please enter: 'login'" +
-                " or 'register'" );
+                " or 'register' or 'quit'" );
         scanner = new Scanner(System.in);
         while(true)
         {
@@ -69,6 +70,10 @@ public abstract class App
             else if(line.equals(register))
             {
                 REGISTER(conn);
+            }
+            else if (line.equals(quit))
+            {
+                return;
             }
         }
     }

@@ -56,7 +56,7 @@ abstract class DataDumper
         MovieGenreID = 0;
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader("C:/DB_App/rotten_tomatoes_top_movies.csv"));
+            reader = new BufferedReader(new FileReader("rotten_tomatoes_top_movies.csv"));
             reader.readLine();
             for(int i =0; i<500; i++)
             {
