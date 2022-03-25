@@ -45,7 +45,7 @@ abstract class DataDumper
         String[] list = new String[a-beg+1];
         for(int j = beg; j<a+1; j++)
         {
-            list[j-beg] = stuff[beg];
+            list[j-beg] = stuff[j];
         }
         return list;
     }
@@ -135,7 +135,7 @@ abstract class DataDumper
                 {
                     string = string.replace(quotes, "");
                 }
-                String v = MovieID + ", " + Studios[0] + ", " + 0.0 + ", "
+                String v = MovieID + ",\" " + Studios[0] + "\", " + 0.0 + ", "
                         + 0 + ", " + Genres[0] + ", " + MovieName + ", "
                         + MPAA + ", " + ReleaseDate[0] + ", " + duration
                         + ", " + Directors[0];
