@@ -47,6 +47,9 @@ abstract class DataDumper
         {
             list[j-beg] = stuff[j];
         }
+        // Getting rid of the quotes at the start and end
+        list[0] = list[0].substring(1);
+        list[list.length - 1] = list[list.length - 1].substring(0,list[list.length - 1].length() - 1);
         return list;
     }
 
@@ -115,27 +118,7 @@ abstract class DataDumper
                     Actors = new String[1];
                     Actors[0] = tokens[a];
                 }
-                for(String string : Studios)
-                {
-                    string = string.replace(quotes, "");
-                }
-                for(String string : Genres)
-                {
-                    string = string.replace(quotes, "");
-                }
-                for(String string : Actors)
-                {
-                    string =string.replace(quotes, "");
-                }
-                for(String string : Directors)
-                {
-                    string = string.replace(quotes, "");
-                }
-                for(String string: ReleaseDate)
-                {
-                    string = string.replace(quotes, "");
-                }
-                String v = MovieID + ",\" " + Studios[0] + "\", " + 0.0 + ", "
+                String v = MovieID + ",\"" + Studios[0] + "\", " + 0.0 + ", "
                         + 0 + ", " + Genres[0] + ", " + MovieName + ", "
                         + MPAA + ", " + ReleaseDate[0] + ", " + duration
                         + ", " + Directors[0];
