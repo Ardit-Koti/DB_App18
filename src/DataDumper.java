@@ -53,6 +53,20 @@ abstract class DataDumper
         return list;
     }
 
+
+    static private String fixMPAA(String broken)
+    {
+        // Gets rid of the details in the the MPAA rating
+        // Keeping only the main part ex. G, PG, etc.
+        for(int i = 0; i<broken.length();i++){
+            if(broken.charAt(i) == ' '){
+                return broken.substring(0,i);
+            }
+        }
+        return broken;
+    }
+
+
     public static boolean MovieTransfer(Connection conn)
     {
         ActID=0;
@@ -90,7 +104,7 @@ abstract class DataDumper
                 a++;
                 MovieName = tokens[a];
                 a++;
-                MPAA = tokens[a];
+                MPAA = fixMPAA(tokens[a]);
                 a++;
                 if(tokens[a].startsWith(quotes))
                 {
@@ -118,10 +132,10 @@ abstract class DataDumper
                     Actors = new String[1];
                     Actors[0] = tokens[a];
                 }
-                String v = MovieID + ",\"" + Studios[0] + "\", " + 0.0 + ", "
-                        + 0 + ", " + Genres[0] + ", " + MovieName + ", "
-                        + MPAA + ", " + ReleaseDate[0] + ", " + duration
-                        + ", " + Directors[0];
+                String v = MovieID + ",\"" + Studios[0] + "\"," + 0.0 + ","
+                        + 0 + ",\"" + Genres[0] + "\",\"" + MovieName + "\",\""
+                        + MPAA + "\"," + ReleaseDate[0] + "," + duration
+                        + ",\"" + Directors[0]+"\"";
                 String insertQuery = "insert into p320_26.movie VALUES ("+ v + ")";
                 Statement insertStatement = conn.createStatement();
                 insertStatement.executeUpdate(insertQuery);
