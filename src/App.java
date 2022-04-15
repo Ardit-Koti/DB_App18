@@ -102,9 +102,9 @@ public abstract class App
         System.out.print("Movie Name: ");
         Movie_Name = scanner.nextLine();
         try {
-            String selectQuery = "Select \"Name\", \"Director\", \"Duration \", mpaa, \"UserAvgRating\"" +
-                    " from p320_26.movie WHERE" +
-                    " \"Name\" like '%" + Movie_Name + "%'";
+            String selectQuery = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\"" +
+                    " from p320_26.movie m, p320_26.actinmovie a WHERE" +
+                    " \"Name\" like '%" + Movie_Name + "%' AND a.\"MovieID\" = m.\"MovieID\"";
             Statement selectStatement = conn.createStatement();
             ResultSet selectResult = selectStatement.executeQuery(selectQuery);
             while(selectResult.next()){
@@ -113,6 +113,7 @@ public abstract class App
                 System.out.print(selectResult.getInt(3 ) + " minutes\t");
                 System.out.print(selectResult.getString(4 ) + "\t");
                 System.out.print(selectResult.getDouble(5 ) + "\n");
+                System.out.print("\t" + selectResult.getString( 6 ) + "\n");
             }
         }
         catch(Exception e){
