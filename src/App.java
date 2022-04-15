@@ -67,14 +67,14 @@ public abstract class App
         Date date = new Date();
         String v = "'" + User + "','" + Password + "','" + First_Name + "','" + Last_Name +
                 "','" + email + "','" + formatter.format(date) + "','" + formatter.format(date) + "'" ;
-        String insertQuery = "insert into \"p320_26.USER\" VALUES ("+ v + ")";
+        String insertQuery = "insert into p320_26.users VALUES ("+ v + ")";
         try{
             Statement insertStatement = conn.createStatement();
             insertStatement.executeUpdate(insertQuery);
             System.out.println("Registration Success!");
         }
         catch(Exception e){
-            System.out.print(e);
+            System.out.println(e);
         };
 
     }
