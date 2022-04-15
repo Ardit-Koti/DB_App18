@@ -66,6 +66,20 @@ abstract class DataDumper
         return broken;
     }
 
+    static private String fixDate(String[] broken)
+    {
+        // Combines the parts of the date and gets rid
+        // of format things
+        for(int i = 1; i<broken[1].length();i++){
+            if(broken[1].charAt(i) == ' '){
+                broken[1] = broken[1].substring(0,i);
+            }
+        }
+
+        return broken[0]  + broken[1];
+    }
+
+
 
     public static boolean MovieTransfer(Connection conn)
     {
@@ -111,6 +125,7 @@ abstract class DataDumper
                     ReleaseDate = Group(a, tokens);
                 }
                 a++;
+                ReleaseDate[0] = fixDate(ReleaseDate);
                 duration = tokens[a];
                 a++;
                 if(tokens[a].startsWith(quotes))
@@ -135,7 +150,7 @@ abstract class DataDumper
                 String v = MovieID + ",\"" + Studios[0] + "\"," + 0.0 + ","
                         + 0 + ",\"" + Genres[0] + "\",\"" + MovieName + "\",\""
                         + MPAA + "\"," + ReleaseDate[0] + "," + duration
-                        + ",\"" + Directors[0]+"\"";
+                        + ",\"" + Directors[0]+"\"," + 0;
                 String insertQuery = "insert into p320_26.movie VALUES ("+ v + ")";
                 Statement insertStatement = conn.createStatement();
                 insertStatement.executeUpdate(insertQuery);
