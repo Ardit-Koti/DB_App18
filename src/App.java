@@ -18,6 +18,7 @@ public abstract class App
     private static String First_Name;
     private static String Last_Name;
     private static Scanner scanner;
+    private static boolean loggedin;
 
     private static void LOGIN(Connection conn)
     {
@@ -43,6 +44,7 @@ public abstract class App
                     Statement updateStatement = conn.createStatement();
                     updateStatement.executeUpdate(updateQuery);
                     System.out.println("Login successful.");
+                    loggedin = true;
                 }
                 catch(Exception e){
                     System.out.println(e);
@@ -81,6 +83,8 @@ public abstract class App
             Statement insertStatement = conn.createStatement();
             insertStatement.executeUpdate(insertQuery);
             System.out.println("Registration Success!");
+            // Automatically logs in on register
+            loggedin = true;
         }
         catch(Exception e){
             System.out.println(e);
@@ -95,7 +99,8 @@ public abstract class App
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
-        while(true)
+        loggedin = false;
+        while(!loggedin)
         {
             System.out.println("Please enter: 'login'" +
                     " or 'register' or 'quit'" );
@@ -113,5 +118,6 @@ public abstract class App
                 return;
             }
         }
+        return;
     }
 }
