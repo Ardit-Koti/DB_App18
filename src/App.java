@@ -104,7 +104,8 @@ public abstract class App
         try {
             String selectQuery = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\"" +
                     " from p320_26.movie m, p320_26.actinmovie a WHERE" +
-                    " \"Name\" like '%" + Movie_Name + "%' AND a.\"MovieID\" = m.\"MovieID\"";
+                    " \"Name\" like '%" + Movie_Name + "%' AND a.\"MovieID\" = m.\"MovieID\"" +
+                    " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
             Statement selectStatement = conn.createStatement();
             ResultSet selectResult = selectStatement.executeQuery(selectQuery);
             String old_movie = "";
@@ -154,7 +155,7 @@ public abstract class App
         }
         while(true)
         {
-            System.out.println("Please enter: 'help'" +  " or 'quit' or an action described by help" );
+            System.out.println("\nPlease enter: 'help'" +  " or 'quit' or an action described by help" );
             String line = scanner.nextLine();
             String[] tokens = line.split(" ");
             if(tokens[0].equals("search"))
