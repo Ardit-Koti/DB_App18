@@ -17,6 +17,7 @@ public abstract class App
     private static String Password;
     private static String First_Name;
     private static String Last_Name;
+    private static String Movie_Name;
     private static Scanner scanner;
     private static boolean loggedin;
 
@@ -92,8 +93,26 @@ public abstract class App
 
     }
 
-    private static void searchName(Connection conn, String name){
-
+    private static void searchName(Connection conn){
+        System.out.print("Movie Name: ");
+        Movie_Name = scanner.nextLine();
+        try {
+            String selectQuery = "Select \"Name\", \"Director\", \"Duration \", mpaa, \"UserAvgRating\"" +
+                    " from p320_26.movie WHERE" +
+                    " \"Name\" like '%" + Movie_Name + "%'";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            while(selectResult.next()){
+                System.out.print(selectResult.getString(1 ) + "\t");
+                System.out.print(selectResult.getString(2 ) + "\t");
+                System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                System.out.print(selectResult.getString(4 ) + "\t");
+                System.out.print(selectResult.getDouble(5 ) + "\n");
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        };
     }
 
     public static void UserStart(Connection conn)
@@ -118,6 +137,20 @@ public abstract class App
                 return;
             }
         }
-        return;
+        while(true)
+        {
+            System.out.println("Please enter: 'help'" +  " or 'quit'" );
+            String line = scanner.nextLine();
+            String[] tokens = line.split(" ");
+            if(tokens[0].equals("search"))
+            {
+                // Eventually this should check the type of search
+                searchName(conn);
+            }
+            else if (line.equals(quit))
+            {
+                return;
+            }
+        }
     }
 }
