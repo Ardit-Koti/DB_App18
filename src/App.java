@@ -26,18 +26,27 @@ public abstract class App
         System.out.println("Enter password: ");
         Password = scanner.nextLine();
         try {
-           // String selectQuery = "Select COUNT(*) from p320_26.USER WHERE" +
-             //       " Username = " + User + "AND" + "Password = "+ Password;
+            String selectQuery = "Select COUNT(*) from p320_26.users WHERE" +
+                    " \"Username\" = '" + User + "'AND " + "\"Password\" = '"+ Password + "'";
             Statement selectStatement = conn.createStatement();
             ResultSet selectResult =
-                    selectStatement.executeQuery("Select COUNT(*) " +
-                    "from USER WHERE" +
-                    " 'Username' = 'John123' AND 'Password' = 'lalala'");
+                    selectStatement.executeQuery(selectQuery);
             selectResult.next();
             int count = selectResult.getInt(1);
             if(count == 1)
             {
-                System.out.println("Login successful.");
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                Date date = new Date();
+                String updateQuery = "Update p320_26.users Set \"LastAccessed\"='" +
+                        formatter.format(date) +"' Where \"Username\"='" + User + "'";
+                try{
+                    Statement updateStatement = conn.createStatement();
+                    updateStatement.executeUpdate(updateQuery);
+                    System.out.println("Login successful.");
+                }
+                catch(Exception e){
+                    System.out.println(e);
+                };
             }
             else if(count == 0)
             {
