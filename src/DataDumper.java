@@ -1,3 +1,4 @@
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import javax.swing.plaf.nimbus.State;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -26,6 +27,7 @@ abstract class DataDumper
     static private String MovieID;
     static private String MPAA;
     static private String duration;
+    static private int durationInt;
     static private int a;
     static private int ActID;
     static private int MovieGenreID;
@@ -79,6 +81,40 @@ abstract class DataDumper
         return broken[0]  + broken[1];
     }
 
+    static private int fixDuration(String broken)
+    {
+        int hours = 0;
+        int new_start = 0;
+        int minutes = 0;
+        for(int i = 0; i<broken.length();i++){
+            if(broken.charAt(i) == 'h'){
+                hours = Integer.parseInt(broken.substring(0,i));
+                new_start = i;
+            }
+        }
+        for(int i = new_start + 2; i<broken.length();i++){
+            if(broken.charAt(i) == 'm'){
+                minutes = Integer.parseInt(broken.substring(new_start + 2,i));
+            }
+        }
+        return hours*60 + minutes;
+    }
+
+    static private String fixString(String broken)
+    {
+        // Combines the parts of the date and gets rid
+        // of format things
+        for(int i = 1; i<broken.length();i++){
+            if(broken.charAt(i) == "'".charAt(0))
+        {
+                broken = broken.substring(0,i) + "'" + broken.substring(i);
+                i++;
+            }
+        }
+        return broken;
+    }
+
+
 
 
     public static boolean MovieTransfer(Connection conn)
@@ -86,12 +122,22 @@ abstract class DataDumper
         ActID=0;
         MovieGenreID = 0;
         BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader("rotten_tomatoes_top_movies.csv"));
-            reader.readLine();
+            try {
+                reader = new BufferedReader(new FileReader("rotten_tomatoes_top_movies.csv"));
+                reader.readLine();
+            }
+            catch(Exception e){
+                System.out.print(e);
+            };
             for(int i =0; i<500; i++)
             {
-                String line = reader.readLine();
+                String line = "";
+                try{
+                    line = reader.readLine();
+                }
+                catch(Exception e){
+                  System.out.print(e);
+                };
                 String[] tokens = line.split(",");
                 a = 0;
                 MovieID = tokens[a];
@@ -105,6 +151,7 @@ abstract class DataDumper
                     Studios = new String[1];
                     Studios[0] = tokens[a];
                 }
+                Studios[0] = fixString(Studios[0]);
                 a++;
                 if(tokens[a].startsWith(quotes))
                 {
@@ -115,8 +162,10 @@ abstract class DataDumper
                     Genres = new String[1];
                     Genres[0] = tokens[a];
                 }
+                Genres[0] = fixString(Genres[0]);
                 a++;
                 MovieName = tokens[a];
+                MovieName = fixString(MovieName);
                 a++;
                 MPAA = fixMPAA(tokens[a]);
                 a++;
@@ -127,6 +176,7 @@ abstract class DataDumper
                 a++;
                 ReleaseDate[0] = fixDate(ReleaseDate);
                 duration = tokens[a];
+                durationInt = fixDuration(duration);
                 a++;
                 if(tokens[a].startsWith(quotes))
                 {
@@ -137,6 +187,7 @@ abstract class DataDumper
                     Directors = new String[1];
                     Directors[0] = tokens[a];
                 }
+                Directors[0] = fixString(Directors[0]);
                 a++;
                 if(tokens[a].startsWith(quotes))
                 {
@@ -147,34 +198,81 @@ abstract class DataDumper
                     Actors = new String[1];
                     Actors[0] = tokens[a];
                 }
-                String v = MovieID + ",\"" + Studios[0] + "\"," + 0.0 + ","
-                        + 0 + ",\"" + Genres[0] + "\",\"" + MovieName + "\",\""
-                        + MPAA + "\"," + ReleaseDate[0] + "," + duration
-                        + ",\"" + Directors[0]+"\"," + 0;
-                String insertQuery = "insert into p320_26.movie VALUES ("+ v + ")";
-                Statement insertStatement = conn.createStatement();
-                insertStatement.executeUpdate(insertQuery);
+                String v = MovieID + ",'" + Studios[0] + "'," + 0.0 + ","
+                        + 0 + ",'" + Genres[0] + "','" + MovieName + "','"
+                        + MPAA + "','" + ReleaseDate[0] + "'," + durationInt
+                        + ",'" + Directors[0]+"'," + 0;
+                String insertQuery;
+                // Got some movies in but not the actors. Don't want a duplicate of a movie
+                if(Integer.parseInt(MovieID) > 1){
+                    insertQuery = "insert into p320_26.movie VALUES ("+ v + ")";
+                    try{
+                        Statement insertStatement = conn.createStatement();
+                        insertStatement.executeUpdate(insertQuery);
+                    }
+                    catch(Exception e){
+                        System.out.print(e);
+                    };
+                }
                 for(String actor : Actors)
                 {
-                    insertQuery = "insert into p320_26.actinmovie VALUES " +
-                            "(" + ActID + ", " + actor + ", " + MovieID+ ")";
-                    Statement actInMovie = conn.createStatement();
-                    actInMovie.executeUpdate(insertQuery);
+                    if ( ActID > 35 ){
+                        // Get different actors in
+                        actor = fixString(actor);
+                        if( ActID > 36)
+                        {
+                            insertQuery = "insert into p320_26.actor VALUES ('" + actor + "')";
+                            try{
+                                Statement actorState = conn.createStatement();
+                                actorState.executeUpdate(insertQuery);
+                            }
+                            catch(Exception e){
+                                System.out.print(e);
+                            };
+                        }
+                        insertQuery = "insert into p320_26.actinmovie VALUES " +
+                                "(" + ActID + ", '" + actor + "', " + MovieID+ ")";
+                        try{
+                            Statement actInMovie = conn.createStatement();
+                            actInMovie.executeUpdate(insertQuery);
+                        }
+                        catch(Exception e){
+                            System.out.print(e);
+                        };
+
+                    }
                     ActID++;
                 }
                 for(String genre: Genres)
                 {
-                    insertQuery = "insert into p320_26.moviegenre VALUES"
-                            + " (" + MovieGenreID + ", " + genre + ", "
-                            + MovieID + ")";
-                    Statement MGenreInsert = conn.createStatement();
-                    MGenreInsert.executeUpdate(insertQuery);
+                    if(MovieGenreID > 4) {
+                        genre = fixString(genre);
+                        if(MovieGenreID > 5){
+                            insertQuery = "insert into p320_26.genre VALUES ('" + genre + "')";
+                            try{
+                                Statement GenreInsert = conn.createStatement();
+                                GenreInsert.executeUpdate(insertQuery);
+                            }
+                            catch(Exception e){
+                                System.out.print(e);
+                            };
+                        }
+                        insertQuery = "insert into p320_26.moviegenre VALUES"
+                                + " (" + MovieGenreID + ",'" + genre + "', "
+                                + MovieID + ")";
+                        try{
+                            Statement MGenreInsert = conn.createStatement();
+                            MGenreInsert.executeUpdate(insertQuery);
+                        }
+                        catch(Exception e){
+                            System.out.print(e);
+                        };
+                    }
+
+                    MovieGenreID++;
                 }
 
             }
-        }catch (Exception e){
-            System.out.println(e);
-        };
         return true;
     }
 }

@@ -49,9 +49,6 @@ public class PostgresSSH {
             System.out.println("Database connection established");
 
             // Do something with the database....
-            // Trying to transfer data
-            DataDumper.MovieTransfer(conn);
-            System.out.println("Data transferred to DB");
             App.UserStart(conn);
 
         } catch (Exception e) {
