@@ -93,6 +93,11 @@ public abstract class App
 
     }
 
+    private static void help(){
+        //Please add a description of a user action when you add one
+        System.out.println("'search name' will let you search for movies based on the name");
+    }
+
     private static void searchName(Connection conn){
         System.out.print("Movie Name: ");
         Movie_Name = scanner.nextLine();
@@ -139,7 +144,7 @@ public abstract class App
         }
         while(true)
         {
-            System.out.println("Please enter: 'help'" +  " or 'quit'" );
+            System.out.println("Please enter: 'help'" +  " or 'quit' or an action described by help" );
             String line = scanner.nextLine();
             String[] tokens = line.split(" ");
             if(tokens[0].equals("search"))
@@ -147,7 +152,10 @@ public abstract class App
                 // Eventually this should check the type of search
                 searchName(conn);
             }
-            else if (line.equals(quit))
+            else if (tokens[0].equals("help")){
+                help();
+            }
+            else if (tokens[0].equals(quit))
             {
                 return;
             }
