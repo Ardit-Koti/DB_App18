@@ -107,13 +107,22 @@ public abstract class App
                     " \"Name\" like '%" + Movie_Name + "%' AND a.\"MovieID\" = m.\"MovieID\"";
             Statement selectStatement = conn.createStatement();
             ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            String old_movie = "";
+            String new_movie = "";
             while(selectResult.next()){
-                System.out.print(selectResult.getString(1 ) + "\t");
-                System.out.print(selectResult.getString(2 ) + "\t");
-                System.out.print(selectResult.getInt(3 ) + " minutes\t");
-                System.out.print(selectResult.getString(4 ) + "\t");
-                System.out.print(selectResult.getDouble(5 ) + "\n");
-                System.out.print("\t" + selectResult.getString( 6 ) + "\n");
+                new_movie = selectResult.getString(1 );
+                if(!(old_movie.equals(new_movie))){
+                    System.out.print("\n" + selectResult.getString(1 ) + "\t");
+                    System.out.print(selectResult.getString(2 ) + "\t");
+                    System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                    System.out.print(selectResult.getString(4 ) + "\t");
+                    System.out.print(selectResult.getDouble(5 ) + "\n");
+                    System.out.print("\t" + selectResult.getString( 6 ));
+                }
+                else{
+                    System.out.print(", " + selectResult.getString( 6 ));
+                }
+                old_movie = selectResult.getString(1 );
             }
         }
         catch(Exception e){
