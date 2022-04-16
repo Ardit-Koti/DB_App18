@@ -21,6 +21,7 @@ public abstract class App
     private static String Movie_Date;
     private static String Movie_Cast;
     private static String Movie_Studio;
+    private static String Movie_Genre;
     private static Scanner scanner;
     private static boolean loggedin;
 
@@ -102,6 +103,7 @@ public abstract class App
         System.out.println("'search date' will let you search for movies based on the release date");
         System.out.println("'search cast' will let you search for movies based on a cast member");
         System.out.println("'search studio' will let you search for movies based on the studio: ");
+        System.out.println("'search genre' will let you search for movies based on the genre: ");
     }
 
     private static void searchName(Connection conn){
@@ -253,6 +255,53 @@ public abstract class App
         };
     }
 
+    private static void searchGenre(Connection conn){
+        System.out.print("Movie Genre: ");
+        Movie_Genre = scanner.nextLine();
+
+        try {
+            String selectQuery = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\"" +
+                    " from p320_26.movie m, p320_26.actinmovie a, p320_26.moviegenre g WHERE" +
+                    " g.\"GenreName\" like '%" + Movie_Genre + "%' AND a.\"MovieID\" = m.\"MovieID\" AND g.\"MovieID\" = m.\"MovieID\""  +
+                    " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            while(selectResult.next()){
+                try{
+                    String selectQueryMovie = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\"" +
+                            " from p320_26.movie m, p320_26.actinmovie a WHERE" +
+                            " m.\"Name\" like '%" + selectResult.getString(1 ) + "%' AND a.\"MovieID\" = m.\"MovieID\"" +
+                            " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
+                    Statement selectStatementMovie = conn.createStatement();
+                    ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                    String old_movie = "";
+                    String new_movie = "";
+                    while(selectResultMovie.next()){
+                        new_movie = selectResultMovie.getString(1 );
+                        if(!(old_movie.equals(new_movie))){
+                            System.out.print("\n" + selectResultMovie.getString(1 ) + "\t");
+                            System.out.print(selectResultMovie.getString(2 ) + "\t");
+                            System.out.print(selectResultMovie.getInt(3 ) + " minutes\t");
+                            System.out.print(selectResultMovie.getString(4 ) + "\t");
+                            System.out.print(selectResultMovie.getDouble(5 ) + "\n");
+                            System.out.print("\t" + selectResultMovie.getString( 6 ));
+                        }
+                        else{
+                            System.out.print(", " + selectResultMovie.getString( 6 ));
+                        }
+                        old_movie = selectResultMovie.getString(1 );
+                    }
+                }
+                catch(Exception e){
+                    System.out.println(e);
+                };
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        };
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -293,6 +342,9 @@ public abstract class App
                 }
                 else if(tokens[1].equals("studio")){
                     searchStudio(conn);
+                }
+                else if(tokens[1].equals("genre")){
+                    searchGenre(conn);
                 }
             }
             else if (tokens[0].equals("help")){
