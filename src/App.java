@@ -22,6 +22,7 @@ public abstract class App
     private static String Movie_Cast;
     private static String Movie_Studio;
     private static String Movie_Genre;
+    private static String Collection_Name;
     private static Scanner scanner;
     private static boolean loggedin;
 
@@ -102,8 +103,9 @@ public abstract class App
         System.out.println("'search name' will let you search for movies based on the name");
         System.out.println("'search date' will let you search for movies based on the release date");
         System.out.println("'search cast' will let you search for movies based on a cast member");
-        System.out.println("'search studio' will let you search for movies based on the studio: ");
-        System.out.println("'search genre' will let you search for movies based on the genre: ");
+        System.out.println("'search studio' will let you search for movies based on the studio ");
+        System.out.println("'search genre' will let you search for movies based on the genre ");
+        System.out.println("'create' will let you create a collection to put movies in ");
     }
 
     private static void searchName(Connection conn){
@@ -294,6 +296,46 @@ public abstract class App
         };
     }
 
+    private static void createCollection(Connection conn){
+        System.out.print("Collection Name: ");
+        Collection_Name = scanner.nextLine();
+        try{
+            // Check to make sure they don't already have a collection named that.
+            String selectQuery = "Select COUNT(*) from p320_26.collection WHERE" +
+                    " \"Username\" = '" + User + "'AND " + "\"Name\" = '"+ Collection_Name + "'";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult =
+                    selectStatement.executeQuery(selectQuery);
+            selectResult.next();
+            int count = selectResult.getInt(1);
+            if(count > 0){
+                System.out.println("You already made a collection by that name.");
+            }
+            else{
+                //We need to find the next available id
+                int i = 0;
+                while(true){
+                    try{
+                        String v = "'" + Collection_Name + "'," + i + ",'" + User + "'";
+                        String insertQuery = "insert into p320_26.collection VALUES ("+ v + ")";
+                        Statement insertStatement = conn.createStatement();
+                        insertStatement.executeUpdate(insertQuery);
+                        System.out.println("Creation Success!");
+                        return;
+                    }
+                    catch(Exception e){
+
+                    }
+                    i++;
+                }
+            }
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -338,6 +380,9 @@ public abstract class App
                 else if(tokens[1].equals("genre")){
                     searchGenre(conn);
                 }
+            }
+            else if( tokens[0].equals("create")){
+                createCollection(conn);
             }
             else if (tokens[0].equals("help")){
                 help();
