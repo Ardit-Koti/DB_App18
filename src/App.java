@@ -266,31 +266,23 @@ public abstract class App
                     " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
             Statement selectStatement = conn.createStatement();
             ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            String old_movie = "";
+            String new_movie = "";
             while(selectResult.next()){
                 try{
-                    String selectQueryMovie = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\"" +
-                            " from p320_26.movie m, p320_26.actinmovie a WHERE" +
-                            " m.\"Name\" like '%" + selectResult.getString(1 ) + "%' AND a.\"MovieID\" = m.\"MovieID\"" +
-                            " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
-                    Statement selectStatementMovie = conn.createStatement();
-                    ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
-                    String old_movie = "";
-                    String new_movie = "";
-                    while(selectResultMovie.next()){
-                        new_movie = selectResultMovie.getString(1 );
-                        if(!(old_movie.equals(new_movie))){
-                            System.out.print("\n" + selectResultMovie.getString(1 ) + "\t");
-                            System.out.print(selectResultMovie.getString(2 ) + "\t");
-                            System.out.print(selectResultMovie.getInt(3 ) + " minutes\t");
-                            System.out.print(selectResultMovie.getString(4 ) + "\t");
-                            System.out.print(selectResultMovie.getDouble(5 ) + "\n");
-                            System.out.print("\t" + selectResultMovie.getString( 6 ));
-                        }
-                        else{
-                            System.out.print(", " + selectResultMovie.getString( 6 ));
-                        }
-                        old_movie = selectResultMovie.getString(1 );
+                    new_movie = selectResult.getString(1 );
+                    if(!(old_movie.equals(new_movie))){
+                        System.out.print("\n" + selectResult.getString(1 ) + "\t");
+                        System.out.print(selectResult.getString(2 ) + "\t");
+                        System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                        System.out.print(selectResult.getString(4 ) + "\t");
+                        System.out.print(selectResult.getDouble(5 ) + "\n");
+                        System.out.print("\t" + selectResult.getString( 6 ));
                     }
+                    else{
+                        System.out.print(", " + selectResult.getString( 6 ));
+                    }
+                    old_movie = selectResult.getString(1 );
                 }
                 catch(Exception e){
                     System.out.println(e);
