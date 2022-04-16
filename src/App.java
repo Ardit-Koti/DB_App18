@@ -106,6 +106,7 @@ public abstract class App
         System.out.println("'search studio' will let you search for movies based on the studio ");
         System.out.println("'search genre' will let you search for movies based on the genre ");
         System.out.println("'create' will let you create a collection to put movies in ");
+        System.out.println("'add' 'movie' will let you add a movie to a collection ");
     }
 
     private static void searchName(Connection conn){
@@ -335,6 +336,89 @@ public abstract class App
         }
     }
 
+    private static void addMovieCollection(Connection conn){
+        System.out.print("Collection Name: ");
+        Collection_Name = scanner.nextLine();
+        try{
+            //Check to see if they have that collection
+            String selectQuery = "Select COUNT(*) from p320_26.collection WHERE" +
+                    " \"Username\" = '" + User + "'AND " + "\"Name\" = '"+ Collection_Name + "'";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult =
+                    selectStatement.executeQuery(selectQuery);
+            selectResult.next();
+            int count = selectResult.getInt(1);
+            if(count > 0){
+                // Need some spicy data
+                selectQuery = "Select \"CollectionID\" from p320_26.collection WHERE" +
+                        " \"Username\" = '" + User + "'AND " + "\"Name\" = '"+ Collection_Name + "'";
+                selectStatement = conn.createStatement();
+                selectResult =
+                        selectStatement.executeQuery(selectQuery);
+                selectResult.next();
+                int CollID = selectResult.getInt(1);
+                System.out.print("Movie Name: ");
+                Movie_Name = scanner.nextLine();
+                try {
+                    selectQuery = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\", m.\"MovieID\"" +
+                            " from p320_26.movie m, p320_26.actinmovie a WHERE" +
+                            " m.\"Name\" like '%" + Movie_Name + "%' AND a.\"MovieID\" = m.\"MovieID\"" +
+                            " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
+                    selectStatement = conn.createStatement();
+                    selectResult = selectStatement.executeQuery(selectQuery);
+                    String old_movie = "";
+                    String new_movie = "";
+                    int MovID = 0;
+                    //need to know if this is the first time the loop goes
+                    boolean notfirst = false;
+                    while(selectResult.next()){
+                        new_movie = selectResult.getString(1 );
+                        if(!(old_movie.equals(new_movie))){
+                            if(notfirst){
+                                System.out.print("If that was movie you wanted to add, type 'y': ");
+                                String addcheck = scanner.nextLine();
+                                if(addcheck.equals("y")){
+                                    try{
+                                        String v =  CollID + "'," + MovID;
+                                        String insertQuery = "insert into p320_26.movieincollection VALUES ("+ v + ")";
+                                        Statement insertStatement = conn.createStatement();
+                                        insertStatement.executeUpdate(insertQuery);
+                                        System.out.println("Addition Success!");
+                                        return;
+                                    }
+                                    catch(Exception e){
+                                        System.out.println(e);
+                                    }
+                                }
+                            }
+                            notfirst = true;
+                            System.out.print("\n" + selectResult.getString(1 ) + "\t");
+                            System.out.print(selectResult.getString(2 ) + "\t");
+                            System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                            System.out.print(selectResult.getString(4 ) + "\t");
+                            System.out.print(selectResult.getDouble(5 ) + "\n");
+                            System.out.print("\t" + selectResult.getString( 6 ));
+                            MovID = selectResult.getInt(7);
+                        }
+                        else{
+                            System.out.print(", " + selectResult.getString( 6 ));
+                        }
+                        old_movie = selectResult.getString(1 );
+                    }
+                }
+                catch(Exception e){
+                    System.out.println(e);
+                };
+            }
+            else{
+                System.out.println("You do not have a collection by that naame.");
+            }
+
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+    }
 
     public static void UserStart(Connection conn)
     {
@@ -383,6 +467,10 @@ public abstract class App
             }
             else if( tokens[0].equals("create")){
                 createCollection(conn);
+            }
+
+            else if(tokens[0].equals("add")){
+                addMovieCollection(conn);
             }
             else if (tokens[0].equals("help")){
                 help();
