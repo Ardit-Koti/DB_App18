@@ -108,6 +108,7 @@ public abstract class App
         System.out.println("'create' will let you create a collection to put movies in ");
         System.out.println("'add movie' will let you add a movie to a collection ");
         System.out.println("'delete movie' will let you delete a movie from a collection ");
+        System.out.println("'rename' will let you rename a collection ");
     }
 
     private static void searchName(Connection conn){
@@ -531,6 +532,41 @@ public abstract class App
         }
     }
 
+    public static void renameCollection(Connection conn){
+        System.out.print("Collection Name to change: ");
+        Collection_Name = scanner.nextLine();
+        try{
+            // Check to make sure they  already have a collection named that.
+            String selectQuery = "Select COUNT(*) from p320_26.collection WHERE" +
+                    " \"Username\" = '" + User + "'AND " + "\"Name\" = '"+ Collection_Name + "'";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult =
+                    selectStatement.executeQuery(selectQuery);
+            selectResult.next();
+            int count = selectResult.getInt(1);
+            if(count <= 0){
+                System.out.println("You don't have a collection by that name.");
+            }
+            else{
+                System.out.print("New Collection Name: ");
+                String New_Collection_Name = scanner.nextLine();
+                String updateQuery = "Update p320_26.Collection Set \"Name\"='" +
+                        New_Collection_Name + "' Where \"Username\"='" + User + "' and " + "\"Name\" = '"+ Collection_Name + "'";
+                try{
+                    Statement updateStatement = conn.createStatement();
+                    updateStatement.executeUpdate(updateQuery);
+                    System.out.println("Rename successful.");
+                }
+                    catch(Exception e){
+                        System.out.println(e);
+                    }
+                }
+            }
+        catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -585,6 +621,9 @@ public abstract class App
             }
             else if(tokens[0].equals("delete")){
                 deleteMovieCollection(conn);
+            }
+            else if(tokens[0].equals("rename")){
+                renameCollection(conn);
             }
             else if (tokens[0].equals("help")){
                 help();
