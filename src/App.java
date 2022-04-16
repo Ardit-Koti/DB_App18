@@ -18,6 +18,7 @@ public abstract class App
     private static String First_Name;
     private static String Last_Name;
     private static String Movie_Name;
+    private static String Movie_Date;
     private static Scanner scanner;
     private static boolean loggedin;
 
@@ -96,15 +97,51 @@ public abstract class App
     private static void help(){
         //Please add a description of a user action when you add one
         System.out.println("'search name' will let you search for movies based on the name");
+        System.out.println("'search date' will let you search for movies based on the release date");
     }
 
     private static void searchName(Connection conn){
         System.out.print("Movie Name: ");
         Movie_Name = scanner.nextLine();
+
         try {
             String selectQuery = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\"" +
                     " from p320_26.movie m, p320_26.actinmovie a WHERE" +
                     " \"Name\" like '%" + Movie_Name + "%' AND a.\"MovieID\" = m.\"MovieID\"" +
+                    " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            String old_movie = "";
+            String new_movie = "";
+            while(selectResult.next()){
+                new_movie = selectResult.getString(1 );
+                if(!(old_movie.equals(new_movie))){
+                    System.out.print("\n" + selectResult.getString(1 ) + "\t");
+                    System.out.print(selectResult.getString(2 ) + "\t");
+                    System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                    System.out.print(selectResult.getString(4 ) + "\t");
+                    System.out.print(selectResult.getDouble(5 ) + "\n");
+                    System.out.print("\t" + selectResult.getString( 6 ));
+                }
+                else{
+                    System.out.print(", " + selectResult.getString( 6 ));
+                }
+                old_movie = selectResult.getString(1 );
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        };
+    }
+
+    private static void searchDate(Connection conn){
+        System.out.print("Movie Release Date: ");
+        Movie_Date = scanner.nextLine();
+
+        try {
+            String selectQuery = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\"" +
+                    " from p320_26.movie m, p320_26.actinmovie a WHERE" +
+                    " \"ReleaseDate\" like '%" + Movie_Date + "%' AND a.\"MovieID\" = m.\"MovieID\"" +
                     " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
             Statement selectStatement = conn.createStatement();
             ResultSet selectResult = selectStatement.executeQuery(selectQuery);
@@ -160,8 +197,12 @@ public abstract class App
             String[] tokens = line.split(" ");
             if(tokens[0].equals("search"))
             {
-                // Eventually this should check the type of search
-                searchName(conn);
+                if(tokens[1].equals("name")){
+                    searchName(conn);
+                }
+                else if(tokens[1].equals("date")){
+                    searchDate(conn);
+                }
             }
             else if (tokens[0].equals("help")){
                 help();
