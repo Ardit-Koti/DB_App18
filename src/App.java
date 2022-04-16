@@ -375,11 +375,11 @@ public abstract class App
                         new_movie = selectResult.getString(1 );
                         if(!(old_movie.equals(new_movie))){
                             if(notfirst){
-                                System.out.print("If that was movie you wanted to add, type 'y': ");
+                                System.out.print("\nIf that was movie you wanted to add, type 'y': ");
                                 String addcheck = scanner.nextLine();
                                 if(addcheck.equals("y")){
                                     try{
-                                        String v =  CollID + "'," + MovID;
+                                        String v =  CollID + "," + MovID;
                                         String insertQuery = "insert into p320_26.movieincollection VALUES ("+ v + ")";
                                         Statement insertStatement = conn.createStatement();
                                         insertStatement.executeUpdate(insertQuery);
@@ -404,6 +404,21 @@ public abstract class App
                             System.out.print(", " + selectResult.getString( 6 ));
                         }
                         old_movie = selectResult.getString(1 );
+                    }
+                    System.out.print("\nIf that was movie you wanted to add, type 'y': ");
+                    String addcheck = scanner.nextLine();
+                    if(addcheck.equals("y")){
+                        try{
+                            String v =  CollID + "," + MovID;
+                            String insertQuery = "insert into p320_26.movieincollection VALUES ("+ v + ")";
+                            Statement insertStatement = conn.createStatement();
+                            insertStatement.executeUpdate(insertQuery);
+                            System.out.println("Addition Success!");
+                            return;
+                        }
+                        catch(Exception e){
+                            System.out.println(e);
+                        }
                     }
                 }
                 catch(Exception e){
