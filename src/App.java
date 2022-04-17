@@ -841,7 +841,7 @@ public abstract class App
                                     selectResultWatch = selectStatementWatch.executeQuery(selectQueryWatch);
                                     selectResultWatch.next();
                                     int watches = selectResultWatch.getInt(1) + 1;
-                                        String updateQuery = "Update p320_26.userwatchessmovie Set \"Play_Count\"=" +
+                                        String updateQuery = "Update p320_26.userwatchesmovie Set \"Play_Count\"=" +
                                                 watches + " Where \"Username\"='" + User + "' and " + "\"MovieID\" = "+ MovID;
                                         Statement updateStatement = conn.createStatement();
                                         updateStatement.executeUpdate(updateQuery);
@@ -859,7 +859,7 @@ public abstract class App
                                 Statement selectStatementMovie = conn.createStatement();
                                 ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
                                 selectResultMovie.next();
-                                int old_watches = selectResultMovie.getInt(1);
+                                int old_watches = selectResultMovie.getInt(1) +1;
                                 String updateQuery = "Update p320_26.movie Set \"Play Count\" = " +
                                         old_watches+ " Where " +  "\"MovieID\" = "+ MovID;
                                 Statement updateStatement = conn.createStatement();
@@ -904,7 +904,7 @@ public abstract class App
                         selectResultWatch = selectStatementWatch.executeQuery(selectQueryWatch);
                         selectResultWatch.next();
                         int watches = selectResultWatch.getInt(1) + 1;
-                        String updateQuery = "Update p320_26.userwatchessmovie Set \"Play_Count\"=" +
+                        String updateQuery = "Update p320_26.userwatchesmovie Set \"Play_Count\"=" +
                                 watches + " Where \"Username\"='" + User + "' and " + "\"MovieID\" = "+ MovID;
                         Statement updateStatement = conn.createStatement();
                         updateStatement.executeUpdate(updateQuery);
@@ -922,7 +922,7 @@ public abstract class App
                     Statement selectStatementMovie = conn.createStatement();
                     ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
                     selectResultMovie.next();
-                    int old_watches = selectResultMovie.getInt(1);
+                    int old_watches = selectResultMovie.getInt(1) + 1;
                     String updateQuery = "Update p320_26.movie Set \"Play Count\" = " +
                             old_watches+ " Where " +  "\"MovieID\" = "+ MovID;
                     Statement updateStatement = conn.createStatement();
