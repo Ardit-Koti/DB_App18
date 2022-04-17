@@ -117,6 +117,7 @@ public abstract class App
         System.out.println("'profile' will let you search for a user profile and see info on it.");
         System.out.println("'recommend rating' will let you see recommendations for a movie based on the rating");
         System.out.println("'recommend history' will let you see recommendations for a movie based on your watch history");
+        System.out.println("'recommend new' will let you see recommendations for a movie based on what's come out this month");
     }
 
     private static void searchName(Connection conn){
@@ -1185,6 +1186,75 @@ public abstract class App
         };
     }
 
+    private static void recommendNew(Connection conn){
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String date_string = formatter.format(date);
+        String Year = date_string.substring(0,4);
+        String Month = date_string.substring(5,7);
+        if(Month.equals("01")){
+            Month = "Jan";
+        }
+        else if(Month.equals("02")){
+            Month = "Feb";
+        }
+        else if(Month.equals("03")){
+            Month = "Mar";
+        }
+        else if(Month.equals("04")){
+            Month = "Apr";
+        }
+        else if(Month.equals("05")){
+            Month = "May";
+        }
+        else if(Month.equals("06")){
+            Month = "Jun";
+        }
+        else if(Month.equals("07")){
+            Month = "Jul";
+        }
+        else if(Month.equals("08")){
+            Month = "Aug";
+        }
+        else if(Month.equals("09")){
+            Month = "Sep";
+        }
+        else if(Month.equals("10")){
+            Month = "Oct";
+        }
+        else if(Month.equals("11")){
+            Month = "Nov";
+        }
+        else if(Month.equals("12")){
+            Month = "Dec";
+        }
+        try {
+            String selectQuery = "Select \"Name\", \"Director\", \"Duration \", \"mpaa\", \"UserAvgRating\"" +
+                    " from p320_26.movie" +
+                    " Where \"ReleaseDate\" like '%" + Month + "%" + Year + "%'" +
+                    " ORDER BY \"UserAvgRating\" desc" +
+                    " LIMIT 5";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            String old_movie = "";
+            String new_movie = "";
+            while(selectResult.next()){
+                new_movie = selectResult.getString(1 );
+                if(!(old_movie.equals(new_movie))){
+                    System.out.print("\n" + selectResult.getString(1 ) + "\t");
+                    System.out.print(selectResult.getString(2 ) + "\t");
+                    System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                    System.out.print(selectResult.getString(4 ) + "\t");
+                    System.out.print(selectResult.getDouble(5 ) + "\n");
+                }
+                old_movie = selectResult.getString(1 );
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        };
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -1271,6 +1341,9 @@ public abstract class App
                 }
                 else if(tokens[1].equals("history")){
                     recommendHistory(conn);
+                }
+                else if(tokens[1].equals("new")){
+                    recommendNew(conn);
                 }
             }
             else if (tokens[0].equals("help")){
