@@ -118,6 +118,7 @@ public abstract class App
         System.out.println("'recommend rating' will let you see recommendations for a movie based on the rating");
         System.out.println("'recommend history' will let you see recommendations for a movie based on your watch history");
         System.out.println("'recommend new' will let you see recommendations for a movie based on what's come out this month");
+        System.out.println("'recommend follow' will let you see recommendations for a movie based on what who you follow likes");
         System.out.println("'add follow' will let you follow a user ");
     }
 
@@ -1322,6 +1323,30 @@ public abstract class App
         }
     }
 
+    private static void recommendFriend(Connection conn){
+        try {
+
+                String selectQueryMovie = "Select distinct m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", u.\"User_Rating\", f.\"Followed\"" +
+                        " from p320_26.movie m, p320_26.friends f, p320_26.userratesmovie u WHERE" +
+                        " u.\"MovieID\" = m.\"MovieID\" AND u.\"Username\" = f.\"Followed\" and f.\"Follower\" = '" + User + "'" +
+                        " ORDER BY u.\"User_Rating\" desc" +
+                        " LIMIT 20";
+                Statement selectStatementMovie = conn.createStatement();
+                ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                while(selectResultMovie.next()){
+                        System.out.print("\n" + selectResultMovie.getString(6) + " recommends \t");
+                        System.out.print(selectResultMovie.getString(1 ) + "\t");
+                        System.out.print(selectResultMovie.getString(2 ) + "\t");
+                        System.out.print(selectResultMovie.getInt(3 ) + " minutes\t");
+                        System.out.print(selectResultMovie.getString(4 ) + "\t");
+                        System.out.print(selectResultMovie.getDouble(5 ) + "\n");
+                    }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        };
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -1416,6 +1441,9 @@ public abstract class App
                 }
                 else if(tokens[1].equals("new")){
                     recommendNew(conn);
+                }
+                else if(tokens[1].equals("follow")){
+                    recommendFriend(conn);
                 }
             }
             else if (tokens[0].equals("help")){
