@@ -111,6 +111,8 @@ public abstract class App
         System.out.println("'rename' will let you rename a collection ");
         System.out.println("'delete collection' will allow you to delete a movie ");
         System.out.println("'show' will show information on your collections ");
+        System.out.println("'rate will let you rate a movie ");
+
     }
 
     private static void searchName(Connection conn){
@@ -664,6 +666,150 @@ public abstract class App
         }
     }
 
+    public static void rateMovie(Connection conn){
+        System.out.print("Movie Name: ");
+        Movie_Name = scanner.nextLine();
+        try {
+            String selectQuery = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\", m.\"MovieID\"" +
+                    " from p320_26.movie m, p320_26.actinmovie a WHERE" +
+                    " m.\"Name\" like '%" + Movie_Name + "%' AND a.\"MovieID\" = m.\"MovieID\"" +
+                    " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            String old_movie = "";
+            String new_movie = "";
+            int MovID = 0;
+            //need to know if this is the first time the loop goes
+            boolean notfirst = false;
+            while(selectResult.next()){
+                new_movie = selectResult.getString(1 );
+                if(!(old_movie.equals(new_movie))){
+                    if(notfirst){
+                        System.out.print("\nIf that was movie you wanted to rate, type 'y': ");
+                        String addcheck = scanner.nextLine();
+                        if(addcheck.equals("y")){
+                            try{
+                                System.out.print("\nMovie Rating (decimal number from 0-5): ");
+                                double rating = scanner.nextDouble();
+                                String selectQueryRating = "select Count(*)" +
+                                        " from p320_26.userratesmovie" +
+                                        " where \"Username\" = '" + User + "' and \"MovieID\" = "+ MovID;
+                                Statement selectStatementRating = conn.createStatement();
+                                ResultSet selectResultRating = selectStatementRating.executeQuery(selectQueryRating);
+                                selectResultRating.next();
+                                if(selectResultRating.getInt(1) != 0){
+                                    System.out.print("\nIf you want to override your old rating, type 'y': ");
+                                    addcheck = scanner.nextLine();
+                                    if(addcheck.equals("y")) {
+                                        String updateQuery = "Update p320_26.userratesmovie Set \"UserRating\"=" +
+                                                rating + " Where \"Username\"='" + User + "' and " + "\"MovieID\" = "+ MovID;
+                                        Statement updateStatement = conn.createStatement();
+                                        updateStatement.executeUpdate(updateQuery);
+                                    }
+                                    else{
+                                        return;
+                                    }
+                                }
+                                else{
+                                    String updateQuery = "insert into p320_26.userratesmovie values ('" +
+                                             User + "'," + MovID + "," + rating + ")";
+                                    Statement updateStatement = conn.createStatement();
+                                    updateStatement.executeUpdate(updateQuery);
+                                }
+                                String selectQueryMovie = "select \"UserAvgRating\", \"NumReviews\"" +
+                                        " from p320_26.movie" +
+                                        " where \"MovieID\" = "+ MovID;
+                                Statement selectStatementMovie = conn.createStatement();
+                                ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                                selectResultMovie.next();
+                                double old_rating = selectResultMovie.getDouble(1);
+                                int old_count = selectResultMovie.getInt(2);
+                                double new_rating = (old_rating * old_count + rating) / (old_count + 1);
+                                int new_count = old_count + 1;
+                                String updateQuery = "Update p320_26.movie Set (\"UserAvgRating\", \"NumReviews\")= ( " +
+                                        new_rating + "," + new_count +  ") Where " +  "\"MovieID\" = "+ MovID;
+                                Statement updateStatement = conn.createStatement();
+                                updateStatement.executeUpdate(updateQuery);
+                                System.out.println("Rating Success!");
+                                return;
+                            }
+                            catch(Exception e){
+                                System.out.println(e);
+                            }
+                        }
+                    }
+                    notfirst = true;
+                    System.out.print("\n" + selectResult.getString(1 ) + "\t");
+                    System.out.print(selectResult.getString(2 ) + "\t");
+                    System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                    System.out.print(selectResult.getString(4 ) + "\t");
+                    System.out.print(selectResult.getDouble(5 ) + "\n");
+                    System.out.print("\t" + selectResult.getString( 6 ));
+                    MovID = selectResult.getInt(7);
+                }
+                else{
+                    System.out.print(", " + selectResult.getString( 6 ));
+                }
+                old_movie = selectResult.getString(1 );
+            }
+            System.out.print("\nIf that was movie you wanted to add, type 'y': ");
+            String addcheck = scanner.nextLine();
+            if(addcheck.equals("y")){
+                try{
+                    System.out.print("\nMovie Rating (decimal number from 0-5): ");
+                    double rating = scanner.nextDouble();
+                    String selectQueryRating = "select Count(*)" +
+                            " from p320_26.userratesmovie" +
+                            " where \"Username\" = '" + User + "' and \"MovieID\" = "+ MovID;
+                    Statement selectStatementRating = conn.createStatement();
+                    ResultSet selectResultRating = selectStatementRating.executeQuery(selectQueryRating);
+                    selectResultRating.next();
+                    if(selectResultRating.getInt(1) != 0){
+                        System.out.print("\nIf you want to override your old rating, type 'y': ");
+                        addcheck = scanner.nextLine();
+                        if(addcheck.equals("y")) {
+                            String updateQuery = "Update p320_26.userratesmovie Set \"UserRating\"=" +
+                                    rating + " Where \"Username\"='" + User + "' and " + "\"MovieID\" = "+ MovID;
+                            Statement updateStatement = conn.createStatement();
+                            updateStatement.executeUpdate(updateQuery);
+                        }
+                        else{
+                            return;
+                        }
+                    }
+                    else{
+                        String updateQuery = "insert into p320_26.userratesmovie values ('" +
+                                User + "'," + MovID + "," + rating + ")";
+                        Statement updateStatement = conn.createStatement();
+                        updateStatement.executeUpdate(updateQuery);
+                    }
+                    String selectQueryMovie = "select \"UserAvgRating\", \"NumReviews\"" +
+                            " from p320_26.movie" +
+                            " where \"MovieID\" = "+ MovID;
+                    Statement selectStatementMovie = conn.createStatement();
+                    ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                    selectResultMovie.next();
+                    double old_rating = selectResultMovie.getDouble(1);
+                    int old_count = selectResultMovie.getInt(2);
+                    double new_rating = (old_rating * old_count + rating) / (old_count + 1);
+                    int new_count = old_count + 1;
+                    String updateQuery = "Update p320_26.movie Set (\"UserAvgRating\", \"NumReviews\")= (" +
+                            new_rating + "," + new_count +  ") Where " +  "\"MovieID\" = "+ MovID;
+                    Statement updateStatement = conn.createStatement();
+                    updateStatement.executeUpdate(updateQuery);
+                    System.out.println("Rating Success!");
+                    return;
+                }
+                catch(Exception e){
+                    System.out.println(e);
+                }
+            }
+        }
+        catch(Exception e){
+            System.out.print(e);
+        }
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -729,6 +875,9 @@ public abstract class App
             }
             else if(tokens[0].equals("show")){
                 showCollections(conn);
+            }
+            else if(tokens[0].equals("rate")){
+                rateMovie(conn);
             }
             else if (tokens[0].equals("help")){
                 help();
