@@ -699,9 +699,9 @@ public abstract class App
                                 selectResultRating.next();
                                 if(selectResultRating.getInt(1) != 0){
                                     System.out.print("\nIf you want to override your old rating, type 'y': ");
-                                    addcheck = scanner.nextLine();
-                                    if(addcheck.equals("y")) {
-                                        String updateQuery = "Update p320_26.userratesmovie Set \"UserRating\"=" +
+                                    String addchecknew = scanner.next();
+                                    if(addchecknew.equals("y")) {
+                                        String updateQuery = "Update p320_26.userratesmovie Set \"User_Rating\"=" +
                                                 rating + " Where \"Username\"='" + User + "' and " + "\"MovieID\" = "+ MovID;
                                         Statement updateStatement = conn.createStatement();
                                         updateStatement.executeUpdate(updateQuery);
@@ -766,9 +766,9 @@ public abstract class App
                     selectResultRating.next();
                     if(selectResultRating.getInt(1) != 0){
                         System.out.print("\nIf you want to override your old rating, type 'y': ");
-                        addcheck = scanner.nextLine();
-                        if(addcheck.equals("y")) {
-                            String updateQuery = "Update p320_26.userratesmovie Set \"UserRating\"=" +
+                        String addchecknew = scanner.nextLine();
+                        if(addchecknew.equals("y")) {
+                            String updateQuery = "Update p320_26.userratesmovie Set \"User_Rating\"=" +
                                     rating + " Where \"Username\"='" + User + "' and " + "\"MovieID\" = "+ MovID;
                             Statement updateStatement = conn.createStatement();
                             updateStatement.executeUpdate(updateQuery);
