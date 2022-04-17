@@ -716,18 +716,15 @@ public abstract class App
                                     Statement updateStatement = conn.createStatement();
                                     updateStatement.executeUpdate(updateQuery);
                                 }
-                                String selectQueryMovie = "select \"UserAvgRating\", \"NumReviews\"" +
-                                        " from p320_26.movie" +
+                                String selectQueryMovie = "select avg(\"User_Rating\")" +
+                                        " from p320_26.userratesmovie" +
                                         " where \"MovieID\" = "+ MovID;
                                 Statement selectStatementMovie = conn.createStatement();
                                 ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
                                 selectResultMovie.next();
                                 double old_rating = selectResultMovie.getDouble(1);
-                                int old_count = selectResultMovie.getInt(2);
-                                double new_rating = (old_rating * old_count + rating) / (old_count + 1);
-                                int new_count = old_count + 1;
-                                String updateQuery = "Update p320_26.movie Set (\"UserAvgRating\", \"NumReviews\")= ( " +
-                                        new_rating + "," + new_count +  ") Where " +  "\"MovieID\" = "+ MovID;
+                                String updateQuery = "Update p320_26.movie Set \"UserAvgRating\" = " +
+                                        old_rating+ " Where " +  "\"MovieID\" = "+ MovID;
                                 Statement updateStatement = conn.createStatement();
                                 updateStatement.executeUpdate(updateQuery);
                                 System.out.println("Rating Success!");
@@ -783,18 +780,15 @@ public abstract class App
                         Statement updateStatement = conn.createStatement();
                         updateStatement.executeUpdate(updateQuery);
                     }
-                    String selectQueryMovie = "select \"UserAvgRating\", \"NumReviews\"" +
-                            " from p320_26.movie" +
+                    String selectQueryMovie = "select avg(\"User_Rating\")" +
+                            " from p320_26.userratesmovie" +
                             " where \"MovieID\" = "+ MovID;
                     Statement selectStatementMovie = conn.createStatement();
                     ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
                     selectResultMovie.next();
                     double old_rating = selectResultMovie.getDouble(1);
-                    int old_count = selectResultMovie.getInt(2);
-                    double new_rating = (old_rating * old_count + rating) / (old_count + 1);
-                    int new_count = old_count + 1;
-                    String updateQuery = "Update p320_26.movie Set (\"UserAvgRating\", \"NumReviews\")= (" +
-                            new_rating + "," + new_count +  ") Where " +  "\"MovieID\" = "+ MovID;
+                    String updateQuery = "Update p320_26.movie Set \"UserAvgRating\"= " +
+                            old_rating+ " Where " +  "\"MovieID\" = "+ MovID;
                     Statement updateStatement = conn.createStatement();
                     updateStatement.executeUpdate(updateQuery);
                     System.out.println("Rating Success!");
