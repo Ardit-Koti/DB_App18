@@ -5,9 +5,13 @@ import java.io.FileReader;
 import java.lang.Object.*;
 import java.nio.Buffer;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.Date;
 import java.util.Scanner;
+import java.util.Random;
 
 /*
 Name: DataDumper
@@ -115,7 +119,120 @@ abstract class DataDumper
     }
 
 
-
+    public static void ratingDump(Connection conn){
+        int bot_num = 0;
+        int CollID = 3;
+        String Last_Name = "Robotnik";
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String date_string = formatter.format(date);
+        String Best_Name = "Best Movies";
+        String Worst_Name = "Worst Movies";
+        Random rand = new Random();
+        for(bot_num = 0; bot_num<50; bot_num++){
+            // Add bot to system
+            String First_Name = "Robot" + bot_num;
+            String email = First_Name + "@fakebot.com";
+            String Password = "Password" + bot_num;
+            String User_Name = "Username" + bot_num;
+            try{
+                String v = "'" + User_Name + "','" + Password + "','" + First_Name + "','" + Last_Name +
+                        "','" + email + "','" + date_string + "','" + date_string + "'" ;
+                String insertQuery = "insert into p320_26.users VALUES ("+ v + ")";
+                Statement insertStatement = conn.createStatement();
+                insertStatement.executeUpdate(insertQuery);
+                // Add collections to the system.
+                v = "'" + Best_Name + "'," + CollID + ",'" + User_Name + "'";
+                insertQuery = "insert into p320_26.collection VALUES ("+ v + ")";
+                insertStatement = conn.createStatement();
+                insertStatement.executeUpdate(insertQuery);
+                int Best_CollID = CollID;
+                CollID++;
+                v = "'" + Worst_Name + "'," + CollID + ",'" + User_Name + "'";
+                insertQuery = "insert into p320_26.collection VALUES ("+ v + ")";
+                insertStatement = conn.createStatement();
+                insertStatement.executeUpdate(insertQuery);
+                int Worst_CollID = CollID;
+                CollID++;
+                for(int i = 0; i<25; i++){
+                    // Rate a movie
+                    int MovID = rand.nextInt(500);
+                    double rating = rand.nextDouble() * 5.0;
+                    String selectQueryRating = "select Count(*)" +
+                            " from p320_26.userratesmovie" +
+                            " where \"Username\" = '" + User_Name + "' and \"MovieID\" = "+ MovID;
+                    Statement selectStatementRating = conn.createStatement();
+                    ResultSet selectResultRating = selectStatementRating.executeQuery(selectQueryRating);
+                    selectResultRating.next();
+                    if(selectResultRating.getInt(1) != 0){
+                            String updateQuery = "Update p320_26.userratesmovie Set \"User_Rating\"=" +
+                                    rating + " Where \"Username\"='" + User_Name + "' and " + "\"MovieID\" = "+ MovID;
+                            Statement updateStatement = conn.createStatement();
+                            updateStatement.executeUpdate(updateQuery);
+                        String selectQueryWatch = "select \"Play_Count\"" +
+                                " from p320_26.userwatchesmovie" +
+                                " where \"Username\" = '" + User_Name + "' and \"MovieID\" = "+ MovID;
+                        Statement selectStatementWatch = conn.createStatement();
+                        ResultSet selectResultWatch = selectStatementWatch.executeQuery(selectQueryWatch);
+                        selectResultWatch.next();
+                        int watches = selectResultWatch.getInt(1) + 1;
+                        updateQuery = "Update p320_26.userwatchesmovie Set \"Play_Count\"=" +
+                                watches + " Where \"Username\"='" + User_Name + "' and " + "\"MovieID\" = "+ MovID;
+                        updateStatement = conn.createStatement();
+                        updateStatement.executeUpdate(updateQuery);
+                    }
+                    else{
+                        String updateQuery = "insert into p320_26.userratesmovie values ('" +
+                                User_Name + "'," + MovID + "," + rating + ")";
+                        Statement updateStatement = conn.createStatement();
+                        updateStatement.executeUpdate(updateQuery);
+                        updateQuery = "insert into p320_26.userwatchesmovie values ('" +
+                                User_Name + "'," + MovID + "," + 1 + ")";
+                        updateStatement = conn.createStatement();
+                        updateStatement.executeUpdate(updateQuery);
+                        if(rating >= 4){
+                            v =  Best_CollID + "," + MovID;
+                            insertQuery = "insert into p320_26.movieincollection VALUES ("+ v + ")";
+                            insertStatement = conn.createStatement();
+                            insertStatement.executeUpdate(insertQuery);
+                        }
+                        else if(rating <= 2){
+                            v =  Worst_CollID + "," + MovID;
+                            insertQuery = "insert into p320_26.movieincollection VALUES ("+ v + ")";
+                            insertStatement = conn.createStatement();
+                            insertStatement.executeUpdate(insertQuery);
+                        }
+                    }
+                    String selectQueryMovie = "select avg(\"User_Rating\")" +
+                            " from p320_26.userratesmovie" +
+                            " where \"MovieID\" = "+ MovID;
+                    Statement selectStatementMovie = conn.createStatement();
+                    ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                    selectResultMovie.next();
+                    double old_rating = selectResultMovie.getDouble(1);
+                    String updateQuery = "Update p320_26.movie Set \"UserAvgRating\" = " +
+                            old_rating+ " Where " +  "\"MovieID\" = "+ MovID;
+                    Statement updateStatement = conn.createStatement();
+                    updateStatement.executeUpdate(updateQuery);
+                    selectQueryMovie = "select \"Play Count\"" +
+                            " from p320_26.movie" +
+                            " where \"MovieID\" = "+ MovID;
+                    selectStatementMovie = conn.createStatement();
+                    selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                    selectResultMovie.next();
+                    int old_watches = selectResultMovie.getInt(1) +1;
+                    updateQuery = "Update p320_26.movie Set \"Play Count\" = " +
+                            old_watches+ " Where " +  "\"MovieID\" = "+ MovID;
+                    updateStatement = conn.createStatement();
+                    updateStatement.executeUpdate(updateQuery);
+                }
+                System.out.println("Bots are done rating :)");
+            }
+            catch (Exception e){
+                System.out.println(e);
+            }
+        }
+    }
 
     public static boolean MovieTransfer(Connection conn)
     {
