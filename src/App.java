@@ -118,6 +118,7 @@ public abstract class App
         System.out.println("'recommend rating' will let you see recommendations for a movie based on the rating");
         System.out.println("'recommend history' will let you see recommendations for a movie based on your watch history");
         System.out.println("'recommend new' will let you see recommendations for a movie based on what's come out this month");
+        System.out.println("'add follow' will let you follow a user ");
     }
 
     private static void searchName(Connection conn){
@@ -1255,6 +1256,72 @@ public abstract class App
         };
     }
 
+    private static void addFriendUsername(Connection conn){
+        System.out.println("Type in user you want to Follower: ");
+        String Profile_Name = scanner.nextLine();
+        try{
+            String selectQuery = "Select COUNT(*) from p320_26.users WHERE" +
+                    " \"Username\" = '" + Profile_Name + "'";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult =
+                    selectStatement.executeQuery(selectQuery);
+            selectResult.next();
+            int count = selectResult.getInt(1);
+            if(count == 1){
+                try{
+                    selectQuery = "Select COUNT(*) from p320_26.friends WHERE" +
+                            " \"Followed\" = '" + Profile_Name + "' AND \"Follower\" = '" + User + "'";
+                    selectStatement = conn.createStatement();
+                    selectResult =
+                            selectStatement.executeQuery(selectQuery);
+                    selectResult.next();
+                    count = selectResult.getInt(1);
+                    if(count == 0){
+                        String v = "'" + User + "','" + Profile_Name + "'" ;
+                        String insertQuery = "insert into p320_26.friends VALUES ("+ v + ")";
+                            Statement insertStatement = conn.createStatement();
+                            insertStatement.executeUpdate(insertQuery);
+                        selectQuery = "Select \"Followers\" from p320_26.users WHERE" +
+                                " \"Username\" = '" + Profile_Name + "'";
+                        selectStatement = conn.createStatement();
+                        selectResult =
+                                selectStatement.executeQuery(selectQuery);
+                        selectResult.next();
+                        count = selectResult.getInt(1) + 1;
+                        String updateQuery = "Update p320_26.users Set \"Followers\"='" +
+                                count +"' Where \"Username\"='" + Profile_Name + "'";
+                            Statement updateStatement = conn.createStatement();
+                            updateStatement.executeUpdate(updateQuery);
+                        selectQuery = "Select \"Following\" from p320_26.users WHERE" +
+                                " \"Username\" = '" + User + "'";
+                        selectStatement = conn.createStatement();
+                        selectResult =
+                                selectStatement.executeQuery(selectQuery);
+                        selectResult.next();
+                        count = selectResult.getInt(1) + 1;
+                        updateQuery = "Update p320_26.users Set \"Following\"='" +
+                                count +"' Where \"Username\"='" + User + "'";
+                        updateStatement = conn.createStatement();
+                        updateStatement.executeUpdate(updateQuery);
+                        System.out.println("Follow Success!");
+                    }
+                    else{
+                        System.out.println("You already follow this user");
+                    }
+                }
+                catch(Exception e){
+                    System.out.println(e);
+                }
+            }
+            else{
+                System.out.println("Not found");
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -1305,7 +1372,12 @@ public abstract class App
             }
 
             else if(tokens[0].equals("add")){
-                addMovieCollection(conn);
+                if(tokens[1].equals("movie")){
+                    addMovieCollection(conn);
+                }
+                else if(tokens[1].equals("follow")){
+                    addFriendUsername(conn);
+                }
             }
             else if(tokens[0].equals("delete")){
                 if(tokens[1].equals("movie")){
