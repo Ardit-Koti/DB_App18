@@ -112,7 +112,7 @@ public abstract class App
         System.out.println("'delete collection' will allow you to delete a movie ");
         System.out.println("'show' will show information on your collections ");
         System.out.println("'rate will let you rate a movie ");
-
+        System.out.println("'watch movie' will let you add one to your watch count of a movie");
     }
 
     private static void searchName(Connection conn){
@@ -804,6 +804,142 @@ public abstract class App
         }
     }
 
+    private static void watchMovie(Connection conn){
+        System.out.print("Movie Name: ");
+        Movie_Name = scanner.nextLine();
+        try {
+            String selectQuery = "Select m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\", a.\"ActorName\", m.\"MovieID\"" +
+                    " from p320_26.movie m, p320_26.actinmovie a WHERE" +
+                    " m.\"Name\" like '%" + Movie_Name + "%' AND a.\"MovieID\" = m.\"MovieID\"" +
+                    " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            String old_movie = "";
+            String new_movie = "";
+            int MovID = 0;
+            //need to know if this is the first time the loop goes
+            boolean notfirst = false;
+            while(selectResult.next()){
+                new_movie = selectResult.getString(1 );
+                if(!(old_movie.equals(new_movie))){
+                    if(notfirst){
+                        System.out.print("\nIf that was movie you wanted to watch, type 'y': ");
+                        String addcheck = scanner.nextLine();
+                        if(addcheck.equals("y")){
+                            try{
+                                String selectQueryWatch = "select Count(*)" +
+                                        " from p320_26.userwatchesmovie" +
+                                        " where \"Username\" = '" + User + "' and \"MovieID\" = "+ MovID;
+                                Statement selectStatementWatch = conn.createStatement();
+                                ResultSet selectResultWatch = selectStatementWatch.executeQuery(selectQueryWatch);
+                                selectResultWatch.next();
+                                if(selectResultWatch.getInt(1) != 0){
+                                    selectQueryWatch = "select \"Play_Count\"" +
+                                            " from p320_26.userwatchesmovie" +
+                                            " where \"Username\" = '" + User + "' and \"MovieID\" = "+ MovID;
+                                    selectStatementWatch = conn.createStatement();
+                                    selectResultWatch = selectStatementWatch.executeQuery(selectQueryWatch);
+                                    selectResultWatch.next();
+                                    int watches = selectResultWatch.getInt(1) + 1;
+                                        String updateQuery = "Update p320_26.userwatchessmovie Set \"Play_Count\"=" +
+                                                watches + " Where \"Username\"='" + User + "' and " + "\"MovieID\" = "+ MovID;
+                                        Statement updateStatement = conn.createStatement();
+                                        updateStatement.executeUpdate(updateQuery);
+
+                                }
+                                else{
+                                    String updateQuery = "insert into p320_26.userwatchesmovie values ('" +
+                                            User + "'," + MovID + "," + 1 + ")";
+                                    Statement updateStatement = conn.createStatement();
+                                    updateStatement.executeUpdate(updateQuery);
+                                }
+                                String selectQueryMovie = "select \"Play Count\"" +
+                                        " from p320_26.movie" +
+                                        " where \"MovieID\" = "+ MovID;
+                                Statement selectStatementMovie = conn.createStatement();
+                                ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                                selectResultMovie.next();
+                                int old_watches = selectResultMovie.getInt(1);
+                                String updateQuery = "Update p320_26.movie Set \"Play Count\" = " +
+                                        old_watches+ " Where " +  "\"MovieID\" = "+ MovID;
+                                Statement updateStatement = conn.createStatement();
+                                updateStatement.executeUpdate(updateQuery);
+                                System.out.println("Watch Success!");
+                                return;
+                            }
+                            catch(Exception e){
+                                System.out.println(e);
+                            }
+                        }
+                    }
+                    notfirst = true;
+                    System.out.print("\n" + selectResult.getString(1 ) + "\t");
+                    System.out.print(selectResult.getString(2 ) + "\t");
+                    System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                    System.out.print(selectResult.getString(4 ) + "\t");
+                    System.out.print(selectResult.getDouble(5 ) + "\n");
+                    System.out.print("\t" + selectResult.getString( 6 ));
+                    MovID = selectResult.getInt(7);
+                }
+                else{
+                    System.out.print(", " + selectResult.getString( 6 ));
+                }
+                old_movie = selectResult.getString(1 );
+            }
+            System.out.print("\nIf that was movie you wanted to add, type 'y': ");
+            String addcheck = scanner.nextLine();
+            if(addcheck.equals("y")){
+                try{
+                    String selectQueryWatch = "select Count(*)" +
+                            " from p320_26.userwatchesmovie" +
+                            " where \"Username\" = '" + User + "' and \"MovieID\" = "+ MovID;
+                    Statement selectStatementWatch = conn.createStatement();
+                    ResultSet selectResultWatch = selectStatementWatch.executeQuery(selectQueryWatch);
+                    selectResultWatch.next();
+                    if(selectResultWatch.getInt(1) != 0){
+                        selectQueryWatch = "select \"Play_Count\"" +
+                                " from p320_26.userwatchesmovie" +
+                                " where \"Username\" = '" + User + "' and \"MovieID\" = "+ MovID;
+                        selectStatementWatch = conn.createStatement();
+                        selectResultWatch = selectStatementWatch.executeQuery(selectQueryWatch);
+                        selectResultWatch.next();
+                        int watches = selectResultWatch.getInt(1) + 1;
+                        String updateQuery = "Update p320_26.userwatchessmovie Set \"Play_Count\"=" +
+                                watches + " Where \"Username\"='" + User + "' and " + "\"MovieID\" = "+ MovID;
+                        Statement updateStatement = conn.createStatement();
+                        updateStatement.executeUpdate(updateQuery);
+
+                    }
+                    else{
+                        String updateQuery = "insert into p320_26.userwatchesmovie values ('" +
+                                User + "'," + MovID + "," + 1 + ")";
+                        Statement updateStatement = conn.createStatement();
+                        updateStatement.executeUpdate(updateQuery);
+                    }
+                    String selectQueryMovie = "select \"Play Count\"" +
+                            " from p320_26.movie" +
+                            " where \"MovieID\" = "+ MovID;
+                    Statement selectStatementMovie = conn.createStatement();
+                    ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                    selectResultMovie.next();
+                    int old_watches = selectResultMovie.getInt(1);
+                    String updateQuery = "Update p320_26.movie Set \"Play Count\" = " +
+                            old_watches+ " Where " +  "\"MovieID\" = "+ MovID;
+                    Statement updateStatement = conn.createStatement();
+                    updateStatement.executeUpdate(updateQuery);
+                    System.out.println("Watch Success!");
+                    return;
+                }
+                catch(Exception e){
+                    System.out.println(e);
+                }
+            }
+        }
+        catch(Exception e){
+            System.out.print(e);
+        }
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -872,6 +1008,9 @@ public abstract class App
             }
             else if(tokens[0].equals("rate")){
                 rateMovie(conn);
+            }
+            else if(tokens[0].equals("watch")){
+                watchMovie(conn);
             }
             else if (tokens[0].equals("help")){
                 help();
