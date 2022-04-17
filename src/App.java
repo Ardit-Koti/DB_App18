@@ -109,6 +109,7 @@ public abstract class App
         System.out.println("'add movie' will let you add a movie to a collection ");
         System.out.println("'delete movie' will let you delete a movie from a collection ");
         System.out.println("'rename' will let you rename a collection ");
+        System.out.println("'delete collection' will allow you to delete a movie ");
     }
 
     private static void searchName(Connection conn){
@@ -567,6 +568,50 @@ public abstract class App
         }
     }
 
+    private static void deleteCollection(Connection conn){
+        System.out.print("Collection Name: ");
+        Collection_Name = scanner.nextLine();
+        try{
+            //Check to see if they have that collection
+            String selectQuery = "Select COUNT(*) from p320_26.collection WHERE" +
+                    " \"Username\" = '" + User + "'AND " + "\"Name\" = '"+ Collection_Name + "'";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult =
+                    selectStatement.executeQuery(selectQuery);
+            selectResult.next();
+            int count = selectResult.getInt(1);
+            if(count > 0) {
+                // Need some spicy data
+                selectQuery = "Select \"CollectionID\" from p320_26.collection WHERE" +
+                        " \"Username\" = '" + User + "'AND " + "\"Name\" = '" + Collection_Name + "'";
+                selectStatement = conn.createStatement();
+                selectResult =
+                        selectStatement.executeQuery(selectQuery);
+                selectResult.next();
+                int CollID = selectResult.getInt(1);
+                try {
+                    String deleteQuery = "delete from p320_26.movieincollection where \"CollectionID\" = " + CollID;
+                    Statement deleteStatement = conn.createStatement();
+                    deleteStatement.executeUpdate(deleteQuery);
+                    deleteQuery = "delete from p320_26.collection where \"CollectionID\" = " + CollID;
+                    deleteStatement = conn.createStatement();
+                    deleteStatement.executeUpdate(deleteQuery);
+                    System.out.println("Deletion Success!");
+                    return;
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+            else{
+                System.out.println("You do not have a collection by that name.");
+            }
+
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -620,7 +665,12 @@ public abstract class App
                 addMovieCollection(conn);
             }
             else if(tokens[0].equals("delete")){
-                deleteMovieCollection(conn);
+                if(tokens[1].equals("movie")){
+                    deleteMovieCollection(conn);
+                }
+                else if(tokens[1].equals("collection")){
+                    deleteCollection(conn);
+                }
             }
             else if(tokens[0].equals("rename")){
                 renameCollection(conn);
