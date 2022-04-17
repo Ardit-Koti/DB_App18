@@ -115,6 +115,7 @@ public abstract class App
         System.out.println("'watch movie' will let you add one to your watch count of a movie");
         System.out.println("'watch collection' will let you add one to your watch count of all the movies in a collection");
         System.out.println("'profile' will let you search for a user profile and see info on it.");
+        System.out.println("'recommend rating' will let you see recommendations for a movie based on the rating");
     }
 
     private static void searchName(Connection conn){
@@ -1118,6 +1119,33 @@ public abstract class App
         }
     }
 
+    private static void recommendRating(Connection conn){
+        try {
+            String selectQuery = "Select \"Name\", \"Director\", \"Duration \", \"mpaa\", \"UserAvgRating\"" +
+                    " from p320_26.movie" +
+                    " ORDER BY \"UserAvgRating\" desc" +
+                    " LIMIT 20";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            String old_movie = "";
+            String new_movie = "";
+            while(selectResult.next()){
+                new_movie = selectResult.getString(1 );
+                if(!(old_movie.equals(new_movie))){
+                    System.out.print("\n" + selectResult.getString(1 ) + "\t");
+                    System.out.print(selectResult.getString(2 ) + "\t");
+                    System.out.print(selectResult.getInt(3 ) + " minutes\t");
+                    System.out.print(selectResult.getString(4 ) + "\t");
+                    System.out.print(selectResult.getDouble(5 ) + "\n");
+                }
+                old_movie = selectResult.getString(1 );
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        };
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -1197,6 +1225,9 @@ public abstract class App
             }
             else if(tokens[0].equals("profile")){
                 profileSearch(conn);
+            }
+            else if(tokens[0].equals("recommend")){
+                recommendRating(conn);
             }
             else if (tokens[0].equals("help")){
                 help();

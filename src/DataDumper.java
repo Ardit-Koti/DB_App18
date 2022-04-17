@@ -129,49 +129,31 @@ abstract class DataDumper
         String Best_Name = "Best Movies";
         String Worst_Name = "Worst Movies";
         Random rand = new Random();
-        for(bot_num = 0; bot_num<50; bot_num++){
+        for(bot_num = 0; bot_num<5; bot_num++){
             // Add bot to system
             String First_Name = "Robot" + bot_num;
             String email = First_Name + "@fakebot.com";
             String Password = "Password" + bot_num;
             String User_Name = "Username" + bot_num;
             try{
-                String v = "'" + User_Name + "','" + Password + "','" + First_Name + "','" + Last_Name +
-                        "','" + email + "','" + date_string + "','" + date_string + "'" ;
-                String insertQuery = "insert into p320_26.users VALUES ("+ v + ")";
-                Statement insertStatement = conn.createStatement();
-                insertStatement.executeUpdate(insertQuery);
-                // Add collections to the system.
-                v = "'" + Best_Name + "'," + CollID + ",'" + User_Name + "'";
-                insertQuery = "insert into p320_26.collection VALUES ("+ v + ")";
-                insertStatement = conn.createStatement();
-                insertStatement.executeUpdate(insertQuery);
-                int Best_CollID = CollID;
-                CollID++;
-                v = "'" + Worst_Name + "'," + CollID + ",'" + User_Name + "'";
-                insertQuery = "insert into p320_26.collection VALUES ("+ v + ")";
-                insertStatement = conn.createStatement();
-                insertStatement.executeUpdate(insertQuery);
-                int Worst_CollID = CollID;
-                CollID++;
-                for(int i = 0; i<25; i++){
+                for(int i = 0; i<1; i++){
                     // Rate a movie
-                    int MovID = rand.nextInt(500);
-                    double rating = rand.nextDouble() * 5.0;
+                    int MovID = 169;
+                    double rating = 5;
                     String selectQueryRating = "select Count(*)" +
                             " from p320_26.userratesmovie" +
-                            " where \"Username\" = '" + User_Name + "' and \"MovieID\" = "+ MovID;
+                            " where \"Username\" = '" + User_Name + "' and \"MovieID\" = "+ 169;
                     Statement selectStatementRating = conn.createStatement();
                     ResultSet selectResultRating = selectStatementRating.executeQuery(selectQueryRating);
                     selectResultRating.next();
                     if(selectResultRating.getInt(1) != 0){
                             String updateQuery = "Update p320_26.userratesmovie Set \"User_Rating\"=" +
-                                    rating + " Where \"Username\"='" + User_Name + "' and " + "\"MovieID\" = "+ MovID;
+                                    rating + " Where \"Username\"='" + User_Name + "' and " + "\"MovieID\" = "+ 169;
                             Statement updateStatement = conn.createStatement();
                             updateStatement.executeUpdate(updateQuery);
                         String selectQueryWatch = "select \"Play_Count\"" +
                                 " from p320_26.userwatchesmovie" +
-                                " where \"Username\" = '" + User_Name + "' and \"MovieID\" = "+ MovID;
+                                " where \"Username\" = '" + User_Name + "' and \"MovieID\" = "+ 169;
                         Statement selectStatementWatch = conn.createStatement();
                         ResultSet selectResultWatch = selectStatementWatch.executeQuery(selectQueryWatch);
                         selectResultWatch.next();
@@ -190,18 +172,6 @@ abstract class DataDumper
                                 User_Name + "'," + MovID + "," + 1 + ")";
                         updateStatement = conn.createStatement();
                         updateStatement.executeUpdate(updateQuery);
-                        if(rating >= 4){
-                            v =  Best_CollID + "," + MovID;
-                            insertQuery = "insert into p320_26.movieincollection VALUES ("+ v + ")";
-                            insertStatement = conn.createStatement();
-                            insertStatement.executeUpdate(insertQuery);
-                        }
-                        else if(rating <= 2){
-                            v =  Worst_CollID + "," + MovID;
-                            insertQuery = "insert into p320_26.movieincollection VALUES ("+ v + ")";
-                            insertStatement = conn.createStatement();
-                            insertStatement.executeUpdate(insertQuery);
-                        }
                     }
                     String selectQueryMovie = "select avg(\"User_Rating\")" +
                             " from p320_26.userratesmovie" +
