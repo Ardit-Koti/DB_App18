@@ -110,6 +110,7 @@ public abstract class App
         System.out.println("'delete movie' will let you delete a movie from a collection ");
         System.out.println("'rename' will let you rename a collection ");
         System.out.println("'delete collection' will allow you to delete a movie ");
+        System.out.println("'show' will show information on your collections ");
     }
 
     private static void searchName(Connection conn){
@@ -612,6 +613,57 @@ public abstract class App
         }
     }
 
+    public static void showCollections(Connection conn){
+        try{
+
+            String selectQuery = "Select \"Name\", \"CollectionID\" from p320_26.collection WHERE" +
+                    " \"Username\" = '" + User  + "' order by  \"Name\" asc";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult =
+                    selectStatement.executeQuery(selectQuery);
+            while(selectResult.next()){
+                String Collection_Name = selectResult.getString(1);
+                int CollId = selectResult.getInt(2);
+                try{
+                    String selectQueryCount = "Select Count(c.*) as Movie_Count, Sum(m.\"Duration \") as time" +
+                            " from p320_26.movieincollection c, p320_26.movie m WHERE" +
+                            " c.\"CollectionID\" = '" + CollId  + "' and m.\"MovieID\" = c.\"MovieID\"";
+                    Statement selectStatementCount = conn.createStatement();
+                    ResultSet selectResultCount =
+                            selectStatementCount.executeQuery(selectQueryCount);
+                    selectResultCount.next();
+                    int count = selectResultCount.getInt(1);
+                    int time_sum = selectResultCount.getInt(2);
+                    int time_hours = time_sum / 60;
+                    int time_minutes = time_sum % 60;
+                    System.out.print("\n" + Collection_Name + "\t #Movies " + count + "\t" + time_hours
+                    + "h " + time_minutes + "t");
+                    try{
+                        String selectQueryMovie = "Select m.\"Name\"" +
+                                " from p320_26.movie m, p320_26.movieincollection c WHERE" +
+                                " c.\"CollectionID\" = " + CollId + " AND c.\"MovieID\" = m.\"MovieID\" " +
+                                " ORDER BY m.\"Name\" asc, m.\"Duration \" asc";
+                        Statement selectStatementMovie = conn.createStatement();
+                        ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                        while(selectResultMovie.next()){
+                            System.out.print("\n\t" + selectResultMovie.getString(1 ));
+                        }
+                    }
+                    catch(Exception e){
+                        System.out.println(e);
+                    }
+
+                }
+                catch(Exception e){
+                    System.out.println(e);
+                }
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -674,6 +726,9 @@ public abstract class App
             }
             else if(tokens[0].equals("rename")){
                 renameCollection(conn);
+            }
+            else if(tokens[0].equals("show")){
+                showCollections(conn);
             }
             else if (tokens[0].equals("help")){
                 help();
