@@ -1061,6 +1061,61 @@ public abstract class App
                 System.out.println(e);
             }
         }
+        else{
+            try{
+                String selectQuery = "Select COUNT(*) from p320_26.users WHERE" +
+                        " \"Username\" = '" + Profile_Name + "'";
+                Statement selectStatement = conn.createStatement();
+                ResultSet selectResult =
+                        selectStatement.executeQuery(selectQuery);
+                selectResult.next();
+                int count = selectResult.getInt(1);
+                if(count == 1){
+                    System.out.println( "\n" + Profile_Name + "'s Profile");
+                    try{
+                        String selectQueryCount = "Select Count(*) as Collection_Count" +
+                                " from p320_26.collection WHERE" +
+                                " \"Username\" = '" + Profile_Name  + "'";
+                        Statement selectStatementCount = conn.createStatement();
+                        ResultSet selectResultCount =
+                                selectStatementCount.executeQuery(selectQueryCount);
+                        selectResultCount.next();
+                        count = selectResultCount.getInt(1);
+                        System.out.println(count + " collections");
+                        String selectQueryFollow = "Select \"Followers\", \"Following\"" +
+                                " from p320_26.users WHERE" +
+                                " \"Username\" = '" + Profile_Name  + "'";
+                        Statement selectStatementFollow = conn.createStatement();
+                        ResultSet selectResultFollow =
+                                selectStatementFollow.executeQuery(selectQueryFollow);
+                        selectResultFollow.next();
+                        System.out.println(selectResultFollow.getInt(1) + " Followers");
+                        System.out.println(selectResultFollow.getInt(2) + " Following");
+                        System.out.println("List of top 10 rated movies\n");
+                        String selectQueryRating = "Select m.\"Name\", u.\"User_Rating\"" +
+                                " from p320_26.userratesmovie u, p320_26.movie m WHERE" +
+                                " u.\"Username\" = '" + Profile_Name  + "' and m.\"MovieID\" = u.\"MovieID\"" +
+                                " ORDER BY u.\"User_Rating\" desc" +
+                                " LIMIT 10";
+                        Statement selectStatementRating = conn.createStatement();
+                        ResultSet selectResultRating =
+                                selectStatementRating.executeQuery(selectQueryRating);
+                        while(selectResultRating.next()){
+                            System.out.println("\t" + selectResultRating.getString(1)+ "\t" + selectResultRating.getDouble(2) );
+                        }
+                    }
+                    catch(Exception e){
+                        System.out.println(e);
+                    }
+                }
+                else{
+                    System.out.println("Not found");
+                }
+            }
+            catch(Exception e){
+                System.out.println(e);
+            }
+        }
     }
 
     public static void UserStart(Connection conn)
