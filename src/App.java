@@ -116,6 +116,7 @@ public abstract class App
         System.out.println("'watch collection' will let you add one to your watch count of all the movies in a collection");
         System.out.println("'profile' will let you search for a user profile and see info on it.");
         System.out.println("'recommend rating' will let you see recommendations for a movie based on the rating");
+        System.out.println("'recommend history' will let you see recommendations for a movie based on your watch history");
     }
 
     private static void searchName(Connection conn){
@@ -1146,6 +1147,44 @@ public abstract class App
         };
     }
 
+    private static void recommendHistory(Connection conn){
+        try {
+            // Get Genres of most watched movies
+            String selectQuery = "Select g.\"GenreName\", u.\"Play_Count\"" +
+                    " from p320_26.userwatchesmovie u, p320_26.moviegenre g" +
+                    " ORDER BY u.\"Play_Count\" desc";
+            Statement selectStatement = conn.createStatement();
+            ResultSet selectResult = selectStatement.executeQuery(selectQuery);
+            int limit = 0;
+                while(selectResult.next()) {
+                    String genre = selectResult.getString(1);
+                    String selectQueryMovie = "Select distinct m.\"Name\", m.\"Director\", m.\"Duration \", m.\"mpaa\", m.\"UserAvgRating\"" +
+                            " from p320_26.movie m, p320_26.moviegenre g, p320_26.userwatchesmovie u WHERE" +
+                            " g.\"GenreName\" like '%" + genre + "%' AND g.\"MovieID\" = m.\"MovieID\" AND u.\"Username\" = '" + User + "' AND m.\"MovieID\" != u.\"MovieID\"" +
+                            " ORDER BY m.\"UserAvgRating\" desc" +
+                            " LIMIT 20";
+                    Statement selectStatementMovie = conn.createStatement();
+                    ResultSet selectResultMovie = selectStatementMovie.executeQuery(selectQueryMovie);
+                    while(selectResultMovie.next()){
+                        if(limit < 20){
+                            System.out.print("\n" + selectResultMovie.getString(1 ) + "\t");
+                            System.out.print(selectResultMovie.getString(2 ) + "\t");
+                            System.out.print(selectResultMovie.getInt(3 ) + " minutes\t");
+                            System.out.print(selectResultMovie.getString(4 ) + "\t");
+                            System.out.print(selectResultMovie.getDouble(5 ) + "\n");
+                            limit++;
+                        }
+                        else{
+                            return;
+                        }
+                    }
+                }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        };
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -1227,7 +1266,12 @@ public abstract class App
                 profileSearch(conn);
             }
             else if(tokens[0].equals("recommend")){
-                recommendRating(conn);
+                if(tokens[1].equals("rating")){
+                    recommendRating(conn);
+                }
+                else if(tokens[1].equals("history")){
+                    recommendHistory(conn);
+                }
             }
             else if (tokens[0].equals("help")){
                 help();
