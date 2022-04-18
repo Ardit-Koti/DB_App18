@@ -114,7 +114,8 @@ public abstract class App
         System.out.println("'rate' will let you rate a movie ");
         System.out.println("'watch movie' will let you add one to your watch count of a movie");
         System.out.println("'watch collection' will let you add one to your watch count of all the movies in a collection");
-        System.out.println("'profile' will let you search for a user profile and see info on it.");
+        System.out.println("'profile rating' will let you search for a user profile and see info including their top 10 rated movies.");
+        System.out.println("'profile watches' will let you search for a user profile and see info including their top 10 most watched movies.");
         System.out.println("'recommend rating' will let you see recommendations for a movie based on the rating");
         System.out.println("'recommend history' will let you see recommendations for a movie based on your watch history");
         System.out.println("'recommend new' will let you see recommendations for a movie based on what's come out this month");
@@ -1025,7 +1026,7 @@ public abstract class App
         }
     }
 
-    private static void profileSearch(Connection conn){
+    private static void profileSearchRate(Connection conn){
         System.out.print("Name of the profile you want to see (leave blank for yourself) : ");
         String Profile_Name = scanner.nextLine();
         if(Profile_Name.equals("")){
@@ -1347,6 +1348,104 @@ public abstract class App
         };
     }
 
+    private static void profileSearchWatch(Connection conn){
+        System.out.print("Name of the profile you want to see (leave blank for yourself) : ");
+        String Profile_Name = scanner.nextLine();
+        if(Profile_Name.equals("")){
+            System.out.println( "\n" + User + "'s Profile");
+            try{
+                String selectQueryCount = "Select Count(*) as Collection_Count" +
+                        " from p320_26.collection WHERE" +
+                        " \"Username\" = '" + User  + "'";
+                Statement selectStatementCount = conn.createStatement();
+                ResultSet selectResultCount =
+                        selectStatementCount.executeQuery(selectQueryCount);
+                selectResultCount.next();
+                int count = selectResultCount.getInt(1);
+                System.out.println(count + " collections");
+                String selectQueryFollow = "Select \"Followers\", \"Following\"" +
+                        " from p320_26.users WHERE" +
+                        " \"Username\" = '" + User  + "'";
+                Statement selectStatementFollow = conn.createStatement();
+                ResultSet selectResultFollow =
+                        selectStatementFollow.executeQuery(selectQueryFollow);
+                selectResultFollow.next();
+                System.out.println(selectResultFollow.getInt(1) + " Followers");
+                System.out.println(selectResultFollow.getInt(2) + " Following");
+                System.out.println("List of top 10 most watched movies\n");
+                String selectQueryRating = "Select m.\"Name\", u.\"Play_Count\"" +
+                        " from p320_26.userwatchesmovie u, p320_26.movie m WHERE" +
+                        " u.\"Username\" = '" + User  + "' and m.\"MovieID\" = u.\"MovieID\"" +
+                        " ORDER BY u.\"Play_Count\" desc" +
+                        " LIMIT 10";
+                Statement selectStatementRating = conn.createStatement();
+                ResultSet selectResultRating =
+                        selectStatementRating.executeQuery(selectQueryRating);
+                while(selectResultRating.next()){
+                    System.out.println("\t" + selectResultRating.getString(1)+ "\t" + selectResultRating.getInt(2) );
+                }
+            }
+            catch(Exception e){
+                System.out.println(e);
+            }
+        }
+        else{
+            try{
+                String selectQuery = "Select COUNT(*) from p320_26.users WHERE" +
+                        " \"Username\" = '" + Profile_Name + "'";
+                Statement selectStatement = conn.createStatement();
+                ResultSet selectResult =
+                        selectStatement.executeQuery(selectQuery);
+                selectResult.next();
+                int count = selectResult.getInt(1);
+                if(count == 1){
+                    System.out.println( "\n" + Profile_Name + "'s Profile");
+                    try{
+                        String selectQueryCount = "Select Count(*) as Collection_Count" +
+                                " from p320_26.collection WHERE" +
+                                " \"Username\" = '" + Profile_Name  + "'";
+                        Statement selectStatementCount = conn.createStatement();
+                        ResultSet selectResultCount =
+                                selectStatementCount.executeQuery(selectQueryCount);
+                        selectResultCount.next();
+                        count = selectResultCount.getInt(1);
+                        System.out.println(count + " collections");
+                        String selectQueryFollow = "Select \"Followers\", \"Following\"" +
+                                " from p320_26.users WHERE" +
+                                " \"Username\" = '" + Profile_Name  + "'";
+                        Statement selectStatementFollow = conn.createStatement();
+                        ResultSet selectResultFollow =
+                                selectStatementFollow.executeQuery(selectQueryFollow);
+                        selectResultFollow.next();
+                        System.out.println(selectResultFollow.getInt(1) + " Followers");
+                        System.out.println(selectResultFollow.getInt(2) + " Following");
+                        System.out.println("List of top 10 watched movies\n");
+                        String selectQueryRating = "Select m.\"Name\", u.\"Play_Count\"" +
+                                " from p320_26.userwatchesmovie u, p320_26.movie m WHERE" +
+                                " u.\"Username\" = '" + Profile_Name  + "' and m.\"MovieID\" = u.\"MovieID\"" +
+                                " ORDER BY u.\"Play_Count\" desc" +
+                                " LIMIT 10";
+                        Statement selectStatementRating = conn.createStatement();
+                        ResultSet selectResultRating =
+                                selectStatementRating.executeQuery(selectQueryRating);
+                        while(selectResultRating.next()){
+                            System.out.println("\t" + selectResultRating.getString(1)+ "\t" + selectResultRating.getInt(2) );
+                        }
+                    }
+                    catch(Exception e){
+                        System.out.println(e);
+                    }
+                }
+                else{
+                    System.out.println("Not found");
+                }
+            }
+            catch(Exception e){
+                System.out.println(e);
+            }
+        }
+    }
+
     public static void UserStart(Connection conn)
     {
         scanner = new Scanner(System.in);
@@ -1430,7 +1529,12 @@ public abstract class App
                 }
             }
             else if(tokens[0].equals("profile")){
-                profileSearch(conn);
+                if(tokens[1].equals("rating")){
+                    profileSearchRate(conn);
+                }
+                else if(tokens[1].equals("watches")){
+                    profileSearchWatch(conn);
+                }
             }
             else if(tokens[0].equals("recommend")){
                 if(tokens[1].equals("rating")){
